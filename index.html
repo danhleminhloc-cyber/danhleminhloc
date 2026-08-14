@@ -1,1575 +1,230 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Danh Lê Minh Lộc | Sư Phạm Tin Học – Blog & Portfolio Pro</title>
-  <meta name="description" content="Blog chuyên sâu của Danh Lê Minh Lộc – sinh viên Sư Phạm Tin Học, chia sẻ kiến thức lập trình, AI, công nghệ giáo dục và nghiên cứu chuyên ngành."/>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>
-    :root {
-      --bg: #060a14; --bg2: #0b1020; --bg3: #0d1428;
-      --card: #101828; --card2: #141f35; --card3: #1a2844;
-      --accent: #00d4ff; --accent2: #6c3ce1; --accent3: #f59e0b; --accent4: #10b981;
-      --text: #e8edf5; --text2: #8899b4; --text3: #5a6a85;
-      --border: rgba(0,212,255,0.12); --border2: rgba(255,255,255,0.06);
-      --glow: 0 0 40px rgba(0,212,255,0.12); --glow2: 0 0 60px rgba(108,60,225,0.12);
-      --radius: 14px; --radius2: 10px;
-    }
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; font-size: 16px; }
-    body { background: var(--bg); color: var(--text); font-family: 'Be Vietnam Pro', sans-serif; overflow-x: hidden; line-height: 1.6; }
-    ::selection { background: rgba(0,212,255,0.25); color: #fff; }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 3px; }
-    #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; opacity: 0.4; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hộp Thư Bí Mật</title>
+<style>
+  * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center;
+    padding: 20px; position: relative; overflow-x: hidden;
+  }
+  .card {
+    background: rgba(255,255,255,.96); padding: 30px; border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,.25); max-width: 460px; width: 100%;
+    text-align: center; position: relative; z-index: 2;
+  }
+  h1 { color: #4a0e4e; font-size: 24px; margin-bottom: 8px; }
+  p.subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+  .guideline {
+    background: #fff4e6; border: 1px solid #ffd8a8; color: #92400e; font-size: 12.5px;
+    border-radius: 10px; padding: 10px 12px; margin-bottom: 20px; text-align: left; line-height: 1.5;
+  }
+  .form-group { text-align: left; margin-bottom: 16px; }
+  label { display: block; font-weight: 600; color: #333; margin-bottom: 6px; font-size: 14px; }
+  input, select, textarea {
+    width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;
+    font-size: 15px; outline: none; transition: border-color .2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #764ba2; }
+  textarea { resize: vertical; height: 100px; }
+  .char-count { text-align: right; font-size: 11px; color: #999; margin-top: 4px; }
+  .char-count.warn { color: #e8590c; }
+  .consent { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: #444; text-align: left; margin-bottom: 18px; }
+  .consent input { width: auto; margin-top: 2px; }
+  .honeypot { position: absolute; left: -9999px; opacity: 0; height: 0; }
+  button {
+    width: 100%; background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+    color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold;
+    border-radius: 10px; cursor: pointer; box-shadow: 0 5px 15px rgba(255,117,140,.4);
+    transition: transform .2s, box-shadow .2s;
+  }
+  button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,117,140,.6); }
+  button:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .error-text { color: #e03131; font-size: 12.5px; margin-top: -8px; margin-bottom: 12px; display: none; text-align: left; }
+  #thankYouMsg { display: none; animation: fadeIn .5s ease-in; }
+  #thankYouMsg h2 { color: #2ed573; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
 
-    /* NAVBAR */
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 2.5rem; height: 68px; display: flex; align-items: center; justify-content: space-between; background: rgba(6,10,20,0.8); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid var(--border); transition: all 0.3s; }
-    nav.scrolled { background: rgba(6,10,20,0.97); box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
-    .nav-logo { font-family: 'Space Mono', monospace; font-size: 1.05rem; color: var(--accent); text-decoration: none; letter-spacing: 2px; display: flex; align-items: center; gap: 0.5rem; }
-    .nav-logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: blink 2s ease-in-out infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .nav-logo span { color: var(--text3); }
-    .nav-links { display: flex; gap: 0.2rem; list-style: none; }
-    .nav-links a { color: var(--text2); text-decoration: none; font-size: 0.83rem; font-weight: 500; padding: 0.45rem 1rem; border-radius: 8px; transition: all 0.2s; letter-spacing: 0.3px; display: flex; align-items: center; gap: 0.4rem; }
-    .nav-links a:hover, .nav-links a.active { color: var(--accent); background: rgba(0,212,255,0.08); }
-    .nav-links a i { font-size: 0.75rem; opacity: 0.7; }
-    .nav-right { display: flex; align-items: center; gap: 0.8rem; }
-    .nav-cta { background: linear-gradient(135deg, var(--accent), #0099cc); color: #060a14; font-weight: 700; font-size: 0.8rem; padding: 0.45rem 1.1rem; border-radius: 8px; text-decoration: none; transition: all 0.25s; white-space: nowrap; }
-    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,212,255,0.4); }
-    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
-    .nav-hamburger span { width: 22px; height: 2px; background: var(--text2); border-radius: 2px; transition: 0.3s; display: block; }
-
-    /* HERO */
-    #home { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 7rem 1.5rem 4rem; overflow: hidden; }
-    .hero-bg-orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
-    .hero-bg-orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,212,255,0.09) 0%, transparent 70%); top: -100px; left: 50%; transform: translateX(-50%); }
-    .hero-bg-orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(108,60,225,0.09) 0%, transparent 70%); bottom: 0; right: 10%; }
-    .hero-inner { max-width: 860px; position: relative; z-index: 1; }
-    .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2); padding: 0.45rem 1.2rem; border-radius: 999px; font-size: 0.75rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; font-family: 'Space Mono', monospace; margin-bottom: 2rem; animation: fadeSlideDown 0.7s ease both; }
-    .hero-eyebrow-dot { width: 6px; height: 6px; background: var(--accent4); border-radius: 50%; animation: blink 1.5s ease-in-out infinite; }
-    .hero-name { font-family: 'Syne', sans-serif; font-size: clamp(2.8rem, 7vw, 5rem); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 0.8rem; animation: fadeSlideDown 0.7s 0.1s ease both; }
-    .hero-name-line1 { display: block; color: var(--text3); font-size: 0.45em; letter-spacing: 5px; font-family: 'Space Mono', monospace; font-weight: 400; text-transform: uppercase; margin-bottom: 0.3em; }
-    .hero-name .grad { background: linear-gradient(135deg, var(--accent) 0%, #5b8fff 50%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .hero-title-row { display: flex; align-items: center; justify-content: center; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.5rem; animation: fadeSlideDown 0.7s 0.2s ease both; }
-    .hero-title-badge { background: rgba(108,60,225,0.12); border: 1px solid rgba(108,60,225,0.3); color: #a78bfa; font-size: 0.8rem; font-weight: 600; padding: 0.3rem 0.9rem; border-radius: 6px; font-family: 'Space Mono', monospace; }
-    .hero-sub { font-size: 1.05rem; color: var(--text2); font-weight: 400; margin-bottom: 0.4rem; animation: fadeSlideDown 0.7s 0.25s ease both; }
-    .hero-class { font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--accent3); margin-bottom: 1.5rem; animation: fadeSlideDown 0.7s 0.3s ease both; }
-
-    /* TYPING EFFECT */
-    .typing-wrapper { font-size: 1rem; color: var(--text2); line-height: 1.85; max-width: 600px; margin: 0 auto 2.5rem; min-height: 2.5em; animation: fadeSlideDown 0.7s 0.35s ease both; }
-    .typing-text { color: var(--accent); font-family: 'Space Mono', monospace; font-size: 0.9rem; }
-    .cursor { display: inline-block; width: 2px; height: 1.1em; background: var(--accent); margin-left: 2px; animation: cursorBlink 0.9s step-end infinite; vertical-align: text-bottom; }
-    @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeSlideDown 0.7s 0.4s ease both; margin-bottom: 3.5rem; }
-    .btn-primary { background: linear-gradient(135deg, var(--accent), #007acc); color: #060a14; font-weight: 700; font-size: 0.9rem; padding: 0.8rem 2.2rem; border-radius: 10px; text-decoration: none; transition: all 0.25s; box-shadow: 0 4px 24px rgba(0,212,255,0.3); display: inline-flex; align-items: center; gap: 0.5rem; }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(0,212,255,0.45); }
-    .btn-outline { border: 1px solid var(--border); color: var(--text2); font-size: 0.9rem; padding: 0.8rem 2.2rem; border-radius: 10px; text-decoration: none; transition: all 0.25s; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.02); }
-    .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.05); transform: translateY(-2px); }
-    .hero-stats { display: flex; gap: 0; justify-content: center; animation: fadeSlideDown 0.7s 0.5s ease both; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; max-width: 540px; margin: 0 auto; }
-    .stat-item { flex: 1; text-align: center; padding: 1.4rem 1rem; border-right: 1px solid var(--border); transition: background 0.2s; }
-    .stat-item:last-child { border-right: none; }
-    .stat-item:hover { background: rgba(0,212,255,0.04); }
-    .stat-num { font-size: 1.9rem; font-weight: 800; color: var(--accent); font-family: 'Space Mono', monospace; line-height: 1; display: block; }
-    .stat-label { font-size: 0.7rem; color: var(--text3); margin-top: 0.35rem; text-transform: uppercase; letter-spacing: 1.5px; display: block; }
-    .scroll-indicator { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--text3); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; animation: fadeSlideDown 1s 1s ease both; }
-    .scroll-indicator-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); animation: scrollLine 1.5s ease-in-out infinite; }
-    @keyframes scrollLine { 0%,100%{opacity:1;transform:scaleY(1)} 50%{opacity:0.5;transform:scaleY(0.5)} }
-
-    /* SECTION BASE */
-    section { position: relative; z-index: 1; }
-    .section-container { max-width: 1120px; margin: 0 auto; padding: 5.5rem 1.5rem; }
-    .section-header { text-align: center; margin-bottom: 3.5rem; }
-    .section-tag { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.7rem; display: block; }
-    .section-title { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
-    .section-title span { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .section-desc { color: var(--text2); max-width: 540px; margin: 1rem auto 0; font-size: 0.95rem; line-height: 1.8; }
-    .section-line { width: 56px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; margin: 1.2rem auto 0; }
-
-    /* ABOUT */
-    #about { background: var(--bg2); }
-    .about-grid { display: grid; grid-template-columns: 380px 1fr; gap: 3.5rem; align-items: start; }
-    .avatar-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; position: sticky; top: 90px; }
-    .avatar-card-header { background: linear-gradient(135deg, #0d1428 0%, #1a2844 100%); padding: 2.5rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
-    .avatar-card-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(0,212,255,0.1) 0%, transparent 60%); }
-    .avatar-img-wrap { width: 120px; height: 120px; margin: 0 auto 1.2rem; position: relative; z-index: 1; }
-    .avatar-img { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #1e3a5f, #0d1f40); display: flex; align-items: center; justify-content: center; font-size: 3rem; border: 3px solid rgba(0,212,255,0.3); box-shadow: 0 0 0 6px rgba(0,212,255,0.08), 0 0 40px rgba(0,212,255,0.15); animation: avatarPulse 3s ease-in-out infinite; overflow: hidden; }
-    .avatar-svg { width: 100%; height: 100%; border-radius: 50%; }
-    @keyframes avatarPulse { 0%,100% { box-shadow: 0 0 0 6px rgba(0,212,255,0.08), 0 0 40px rgba(0,212,255,0.12); } 50% { box-shadow: 0 0 0 10px rgba(0,212,255,0.05), 0 0 60px rgba(0,212,255,0.22); } }
-    .avatar-status { position: absolute; bottom: 6px; right: 6px; width: 20px; height: 20px; background: var(--bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .avatar-status-dot { width: 10px; height: 10px; background: var(--accent4); border-radius: 50%; animation: blink 2s ease-in-out infinite; }
-    .avatar-name { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 800; position: relative; z-index: 1; }
-    .avatar-role { font-size: 0.78rem; color: var(--accent); font-family: 'Space Mono', monospace; margin-top: 0.3rem; position: relative; z-index: 1; }
-    .avatar-card-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.8rem; }
-    .info-row { display: flex; align-items: center; gap: 0.8rem; }
-    .info-icon { width: 32px; height: 32px; background: rgba(0,212,255,0.08); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 0.82rem; flex-shrink: 0; }
-    .info-label { font-size: 0.65rem; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
-    .info-value { font-size: 0.88rem; font-weight: 600; margin-top: 1px; }
-    .avatar-card-footer { padding: 1rem 1.5rem 1.5rem; }
-    .social-links { display: flex; gap: 0.5rem; justify-content: center; }
-    .social-link { width: 38px; height: 38px; background: rgba(255,255,255,0.04); border: 1px solid var(--border2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text2); text-decoration: none; font-size: 0.85rem; transition: all 0.2s; }
-    .social-link:hover { background: rgba(0,212,255,0.1); color: var(--accent); border-color: rgba(0,212,255,0.3); transform: translateY(-2px); }
-
-    /* ABOUT RIGHT */
-    .about-text h3 { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 1.2rem; }
-    .about-text p { color: var(--text2); line-height: 1.9; margin-bottom: 1.1rem; font-size: 0.95rem; }
-    .skills-section { margin-top: 2rem; }
-    .skills-section h4 { font-size: 0.72rem; color: var(--accent); font-family: 'Space Mono', monospace; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.2rem; }
-    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
-    .skill-item { background: var(--card); border: 1px solid var(--border2); border-radius: 10px; padding: 0.9rem 1rem; }
-    .skill-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
-    .skill-name { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
-    .skill-name i { color: var(--accent); font-size: 0.75rem; }
-    .skill-pct { font-size: 0.72rem; color: var(--text3); font-family: 'Space Mono', monospace; }
-    .skill-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
-    .skill-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
-    .journey-section { margin-top: 2.5rem; }
-    .journey-section h4 { font-size: 0.72rem; color: var(--accent2); font-family: 'Space Mono', monospace; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.5rem; }
-    .timeline { position: relative; padding-left: 1.5rem; }
-    .timeline::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 0; width: 1px; background: linear-gradient(to bottom, var(--accent2), transparent); }
-    .timeline-item { position: relative; margin-bottom: 1.5rem; }
-    .timeline-dot { position: absolute; left: -1.85rem; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent2); box-shadow: 0 0 10px rgba(108,60,225,0.5); }
-    .timeline-year { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--accent2); letter-spacing: 1px; margin-bottom: 0.2rem; }
-    .timeline-title { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.2rem; }
-    .timeline-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
-    .interests-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
-    .interest-chip { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border2); color: var(--text2); font-size: 0.78rem; padding: 0.4rem 0.9rem; border-radius: 999px; transition: all 0.2s; }
-    .interest-chip:hover { color: var(--accent); border-color: rgba(0,212,255,0.25); background: rgba(0,212,255,0.05); }
-    .interest-chip i { font-size: 0.7rem; color: var(--accent3); }
-
-    /* CERT SECTION */
-    #certs { background: var(--bg3); }
-    .certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
-    .cert-card { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius2); padding: 1.4rem; display: flex; align-items: center; gap: 1rem; transition: all 0.3s; }
-    .cert-card:hover { border-color: rgba(0,212,255,0.25); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-    .cert-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
-    .cert-body { flex: 1; }
-    .cert-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
-    .cert-issuer { font-size: 0.75rem; color: var(--text3); margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; }
-    .cert-date { font-size: 0.7rem; color: var(--accent4); font-weight: 600; }
-    .cert-badge { font-size: 0.62rem; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: var(--accent4); padding: 0.15rem 0.5rem; border-radius: 4px; margin-left: 0.4rem; }
-
-    /* PROJECTS SECTION */
-    #projects { background: var(--bg2); }
-    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
-    .project-card { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius); overflow: hidden; transition: all 0.3s; }
-    .project-card:hover { transform: translateY(-6px); border-color: rgba(0,212,255,0.25); box-shadow: 0 20px 50px rgba(0,0,0,0.4), var(--glow); }
-    .project-thumb { height: 150px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .project-thumb-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 24px 24px; }
-    .project-thumb-emoji { font-size: 3.5rem; position: relative; z-index: 1; }
-    .project-status { position: absolute; top: 10px; right: 10px; font-size: 0.65rem; padding: 0.2rem 0.65rem; border-radius: 999px; font-family: 'Space Mono', monospace; font-weight: 700; }
-    .project-status.live { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); color: var(--accent4); }
-    .project-status.wip { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: var(--accent3); }
-    .project-body { padding: 1.4rem; }
-    .project-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .project-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.7; margin-bottom: 1rem; }
-    .project-tech { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
-    .project-tech-tag { font-size: 0.65rem; background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.12); color: var(--accent); padding: 0.2rem 0.55rem; border-radius: 4px; font-family: 'Space Mono', monospace; }
-    .project-links { display: flex; gap: 0.5rem; }
-    .project-link { font-size: 0.78rem; padding: 0.4rem 1rem; border-radius: 7px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; font-weight: 600; }
-    .project-link.primary { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); color: var(--accent); }
-    .project-link.secondary { background: rgba(255,255,255,0.04); border: 1px solid var(--border2); color: var(--text2); }
-    .project-link:hover { transform: translateY(-1px); }
-
-    /* STATS BANNER */
-    #stats-banner { background: var(--bg3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .stats-banner-inner { max-width: 1120px; margin: 0 auto; padding: 3rem 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
-    .stat-banner-item { text-align: center; padding: 1rem 2rem; border-right: 1px solid var(--border); position: relative; }
-    .stat-banner-item:last-child { border-right: none; }
-    .stat-banner-icon { width: 44px; height: 44px; background: rgba(0,212,255,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.8rem; font-size: 1.1rem; color: var(--accent); }
-    .stat-banner-num { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--text); line-height: 1; }
-    .stat-banner-num span { color: var(--accent); }
-    .stat-banner-label { font-size: 0.78rem; color: var(--text3); margin-top: 0.3rem; }
-
-    /* POSTS */
-    #posts { background: var(--bg); }
-    .filter-bar { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem; }
-    .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--text2); padding: 0.45rem 1.2rem; border-radius: 999px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; font-family: 'Be Vietnam Pro', sans-serif; display: flex; align-items: center; gap: 0.4rem; font-weight: 500; }
-    .filter-btn i { font-size: 0.72rem; }
-    .filter-btn.active, .filter-btn:hover { background: var(--accent); border-color: var(--accent); color: #060a14; font-weight: 700; }
-    .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 1.5rem; }
-    .post-card { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius); overflow: hidden; transition: all 0.3s; cursor: pointer; display: flex; flex-direction: column; position: relative; }
-    .post-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(0,212,255,0.04), transparent 60%); opacity: 0; transition: opacity 0.3s; pointer-events: none; border-radius: inherit; }
-    .post-card:hover { transform: translateY(-5px); border-color: rgba(0,212,255,0.25); box-shadow: 0 16px 50px rgba(0,0,0,0.4), var(--glow); }
-    .post-card:hover::before { opacity: 1; }
-    .post-thumb { height: 170px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .post-thumb-emoji { font-size: 3.8rem; position: relative; z-index: 1; }
-    .post-thumb-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 24px 24px; }
-    .post-cat-badge { position: absolute; top: 10px; left: 10px; background: rgba(6,10,20,0.8); backdrop-filter: blur(8px); border: 1px solid var(--border); padding: 0.22rem 0.65rem; border-radius: 999px; font-size: 0.68rem; color: var(--accent); font-family: 'Space Mono', monospace; letter-spacing: 0.5px; }
-    .post-read-time { position: absolute; top: 10px; right: 10px; background: rgba(6,10,20,0.8); backdrop-filter: blur(8px); border: 1px solid var(--border); padding: 0.22rem 0.65rem; border-radius: 999px; font-size: 0.65rem; color: var(--text2); font-family: 'Space Mono', monospace; }
-    .post-body { padding: 1.3rem; flex: 1; display: flex; flex-direction: column; }
-    .post-meta { font-size: 0.7rem; color: var(--text3); margin-bottom: 0.6rem; font-family: 'Space Mono', monospace; display: flex; align-items: center; gap: 0.5rem; }
-    .post-title { font-size: 0.98rem; font-weight: 700; line-height: 1.45; margin-bottom: 0.65rem; color: var(--text); transition: color 0.2s; }
-    .post-card:hover .post-title { color: var(--accent); }
-    .post-excerpt { font-size: 0.83rem; color: var(--text2); line-height: 1.7; flex: 1; }
-    .post-footer { margin-top: 1.1rem; padding-top: 0.8rem; border-top: 1px solid var(--border2); display: flex; justify-content: space-between; align-items: center; }
-    .post-read { font-size: 0.77rem; color: var(--accent); font-weight: 600; display: flex; align-items: center; gap: 0.35rem; transition: gap 0.2s; }
-    .post-card:hover .post-read { gap: 0.6rem; }
-    .post-tags { display: flex; gap: 0.3rem; }
-    .post-tag { font-size: 0.62rem; background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.12); color: var(--accent); padding: 0.15rem 0.5rem; border-radius: 4px; font-family: 'Space Mono', monospace; }
-
-    /* FEATURED POST */
-    .featured-post { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius); overflow: hidden; display: grid; grid-template-columns: 1fr 1.6fr; margin-bottom: 3rem; cursor: pointer; transition: all 0.3s; position: relative; }
-    .featured-post:hover { border-color: rgba(0,212,255,0.3); transform: translateY(-3px); box-shadow: 0 20px 60px rgba(0,0,0,0.4), var(--glow); }
-    .featured-thumb { min-height: 260px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .featured-thumb-emoji { font-size: 6rem; }
-    .featured-badge { position: absolute; top: 12px; left: 12px; background: var(--accent3); color: #060a14; font-size: 0.68rem; font-weight: 800; padding: 0.3rem 0.75rem; border-radius: 6px; font-family: 'Space Mono', monospace; letter-spacing: 1px; text-transform: uppercase; }
-    .featured-body { padding: 2rem 2.5rem; display: flex; flex-direction: column; justify-content: center; }
-    .featured-body .post-cat-badge { position: static; display: inline-block; margin-bottom: 1rem; }
-    .featured-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; line-height: 1.35; margin-bottom: 1rem; letter-spacing: -0.5px; }
-    .featured-excerpt { color: var(--text2); font-size: 0.9rem; line-height: 1.8; margin-bottom: 1.5rem; }
-    .featured-meta { display: flex; align-items: center; gap: 1.5rem; font-size: 0.78rem; color: var(--text3); }
-    .featured-meta span { display: flex; align-items: center; gap: 0.4rem; }
-
-    /* MODAL */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; }
-    .modal-overlay.open { display: flex; }
-    .modal-box { background: var(--card2); border: 1px solid var(--border); border-radius: 20px; max-width: 720px; width: 100%; max-height: 88vh; overflow-y: auto; animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; }
-    @keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(20px); } to { opacity: 1; transform: none; } }
-    .modal-header-img { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 5rem; position: relative; overflow: hidden; }
-    .modal-header-img-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 30px 30px; }
-    .modal-head { padding: 1.5rem 2rem 1rem; border-bottom: 1px solid var(--border2); position: sticky; top: 0; background: var(--card2); z-index: 1; }
-    .modal-close { position: absolute; top: 1.2rem; right: 1.5rem; background: rgba(255,255,255,0.07); border: 1px solid var(--border2); color: var(--text2); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; }
-    .modal-close:hover { background: rgba(255,255,255,0.14); color: var(--text); border-color: var(--border); }
-    .modal-cat { font-size: 0.68rem; color: var(--accent); font-family: 'Space Mono', monospace; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.5rem; }
-    .modal-title { font-family: 'Syne', sans-serif; font-size: 1.45rem; font-weight: 800; line-height: 1.3; margin-bottom: 0.6rem; letter-spacing: -0.5px; }
-    .modal-meta { font-size: 0.75rem; color: var(--text3); display: flex; gap: 1rem; flex-wrap: wrap; }
-    .modal-meta span { display: flex; align-items: center; gap: 0.4rem; }
-    .modal-content { padding: 1.8rem 2rem 2.5rem; }
-    .modal-content p { color: var(--text2); line-height: 1.95; font-size: 0.93rem; margin-bottom: 1.3rem; }
-    .modal-content h3 { font-size: 1.05rem; font-weight: 700; color: var(--accent); margin: 1.8rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border2); }
-    .modal-content ul { margin-left: 1.2rem; color: var(--text2); line-height: 2; font-size: 0.93rem; }
-    .modal-content ul li { margin-bottom: 0.3rem; }
-    .modal-content li::marker { color: var(--accent); }
-    .modal-content code { font-family: 'Space Mono', monospace; font-size: 0.82rem; background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.12); color: var(--accent); padding: 0.15rem 0.5rem; border-radius: 5px; }
-    .modal-content strong { color: var(--text); }
-    .modal-content .tip-box { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-left: 3px solid var(--accent4); border-radius: 8px; padding: 1rem 1.2rem; margin: 1.5rem 0; }
-    .modal-content .tip-box p { color: var(--text2); margin: 0; }
-    .modal-content .tip-box .tip-label { font-size: 0.7rem; color: var(--accent4); font-family: 'Space Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.4rem; display: block; }
-    .modal-content .stat-highlight { display: inline-block; background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 6px; padding: 0.3rem 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--accent); margin: 0.2rem; }
-    .modal-content blockquote { border-left: 3px solid var(--accent2); padding: 0.8rem 1.2rem; background: rgba(108,60,225,0.06); border-radius: 0 8px 8px 0; margin: 1.2rem 0; font-style: italic; color: var(--text2); }
-
-    /* RESOURCES */
-    #resources { background: var(--bg2); }
-    .resources-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-    .resource-card { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius); padding: 1.8rem; transition: all 0.3s; }
-    .resource-card:hover { transform: translateY(-4px); border-color: var(--border); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
-    .resource-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 1.2rem; }
-    .resource-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .resource-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.7; margin-bottom: 1.2rem; }
-    .resource-links { display: flex; flex-direction: column; gap: 0.4rem; }
-    .resource-link { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text2); text-decoration: none; padding: 0.4rem 0.7rem; border-radius: 6px; background: rgba(255,255,255,0.03); border: 1px solid var(--border2); transition: all 0.2s; }
-    .resource-link:hover { color: var(--accent); background: rgba(0,212,255,0.05); border-color: rgba(0,212,255,0.2); }
-    .resource-link i { font-size: 0.7rem; color: var(--accent); }
-
-    /* NEWSLETTER */
-    .newsletter-section { margin-top: 3rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; text-align: center; position: relative; overflow: hidden; }
-    .newsletter-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(0,212,255,0.06), transparent 60%); pointer-events: none; }
-    .newsletter-section h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
-    .newsletter-section p { color: var(--text2); margin-bottom: 1.5rem; font-size: 0.9rem; }
-    .newsletter-form { display: flex; gap: 0.8rem; max-width: 480px; margin: 0 auto; }
-    .newsletter-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1.1rem; color: var(--text); font-family: 'Be Vietnam Pro', sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
-    .newsletter-input:focus { border-color: var(--accent); }
-    .newsletter-btn { background: linear-gradient(135deg, var(--accent), #007acc); color: #060a14; font-weight: 700; font-size: 0.85rem; padding: 0.75rem 1.5rem; border-radius: 10px; border: none; cursor: pointer; white-space: nowrap; transition: all 0.25s; }
-    .newsletter-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,212,255,0.4); }
-
-    /* CONTACT */
-    #contact { background: var(--bg); }
-    .contact-wrapper { display: grid; grid-template-columns: 1fr 1.4fr; gap: 3.5rem; align-items: start; }
-    .contact-left h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.5px; }
-    .contact-left p { color: var(--text2); line-height: 1.8; margin-bottom: 2rem; font-size: 0.93rem; }
-    .contact-methods { display: flex; flex-direction: column; gap: 0.7rem; }
-    .contact-method { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.2rem; background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius2); text-decoration: none; transition: all 0.2s; }
-    .contact-method:hover { border-color: var(--border); transform: translateX(4px); }
-    .contact-method-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
-    .contact-method-info { flex: 1; }
-    .contact-method-label { font-size: 0.68rem; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
-    .contact-method-value { font-size: 0.88rem; font-weight: 600; color: var(--text); }
-    .contact-method-arrow { color: var(--text3); font-size: 0.75rem; transition: all 0.2s; }
-    .contact-method:hover .contact-method-arrow { color: var(--accent); transform: translateX(2px); }
-    .contact-form-card { background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; }
-    .contact-form-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .form-group label { display: block; font-size: 0.75rem; color: var(--text2); margin-bottom: 0.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; padding: 0.7rem 0.9rem; color: var(--text); font-family: 'Be Vietnam Pro', sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
-    .form-group textarea { min-height: 120px; resize: vertical; }
-    .form-group select { cursor: pointer; }
-    .form-group select option { background: var(--bg2); }
-    .form-submit { width: 100%; margin-top: 1.2rem; background: linear-gradient(135deg, var(--accent), #007acc); color: #060a14; font-weight: 700; font-size: 0.9rem; padding: 0.9rem; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.25s; }
-    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.4); }
-
-    /* FOOTER */
-    footer { position: relative; z-index: 1; background: var(--bg2); border-top: 1px solid var(--border); }
-    .footer-inner { max-width: 1120px; margin: 0 auto; padding: 3.5rem 1.5rem 2rem; }
-    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
-    .footer-brand p { font-size: 0.83rem; color: var(--text2); line-height: 1.8; margin-top: 1rem; max-width: 300px; }
-    .footer-social { display: flex; gap: 0.5rem; margin-top: 1.2rem; }
-    .footer-social a { width: 36px; height: 36px; background: rgba(255,255,255,0.04); border: 1px solid var(--border2); border-radius: 9px; display: flex; align-items: center; justify-content: center; color: var(--text2); text-decoration: none; font-size: 0.82rem; transition: all 0.2s; }
-    .footer-social a:hover { background: rgba(0,212,255,0.1); color: var(--accent); border-color: rgba(0,212,255,0.3); }
-    .footer-col h5 { font-size: 0.78rem; color: var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1.2rem; }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
-    .footer-col ul a { color: var(--text2); text-decoration: none; font-size: 0.82rem; display: flex; align-items: center; gap: 0.5rem; transition: color 0.2s; }
-    .footer-col ul a:hover { color: var(--accent); }
-    .footer-col ul a i { font-size: 0.7rem; color: var(--text3); }
-    .footer-bottom { border-top: 1px solid var(--border2); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text3); }
-    .footer-bottom-left { display: flex; align-items: center; gap: 0.4rem; }
-    .heart { color: #ef4444; animation: heartbeat 1.5s ease-in-out infinite; font-size: 0.7rem; }
-    @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
-
-    /* SCROLL TOP / TOAST */
-    #scrollTop { position: fixed; bottom: 2rem; right: 2rem; z-index: 99; background: var(--accent); color: #060a14; border: none; width: 44px; height: 44px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; display: none; align-items: center; justify-content: center; transition: all 0.25s; box-shadow: 0 4px 20px rgba(0,212,255,0.4); }
-    #scrollTop:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,212,255,0.5); }
-    #scrollTop.show { display: flex; }
-    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--card2); border: 1px solid var(--accent4); border-radius: 12px; padding: 0.9rem 1.5rem; font-size: 0.88rem; font-weight: 600; z-index: 9999; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); display: flex; align-items: center; gap: 0.6rem; box-shadow: 0 10px 40px rgba(0,0,0,0.4); white-space: nowrap; }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast i { color: var(--accent4); }
-    #reading-progress { position: fixed; top: 0; left: 0; height: 2px; z-index: 2000; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.1s; width: 0%; }
-
-    /* ANIMATIONS */
-    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-up { opacity: 0; transform: translateY(32px); transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1); }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
-    .fade-up-delay-1 { transition-delay: 0.1s; }
-    .fade-up-delay-2 { transition-delay: 0.2s; }
-    .fade-up-delay-3 { transition-delay: 0.3s; }
-
-    /* MOBILE NAV */
-    .mobile-nav-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-
-    /* RESPONSIVE */
-    @media (max-width: 1024px) {
-      .about-grid { grid-template-columns: 1fr; }
-      .avatar-card { position: static; max-width: 400px; margin: 0 auto; }
-      .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
-    }
-    @media (max-width: 768px) {
-      nav { padding: 0 1.2rem; }
-      .nav-links { display: none; flex-direction: column; position: fixed; top: 68px; left: 0; right: 0; background: rgba(6,10,20,0.98); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 1rem; gap: 0.3rem; z-index: 999; }
-      .nav-links.open { display: flex; }
-      .nav-hamburger { display: flex; }
-      .nav-cta { display: none; }
-      .about-grid, .contact-wrapper { grid-template-columns: 1fr; }
-      .featured-post { grid-template-columns: 1fr; }
-      .featured-thumb { height: 160px; }
-      .featured-body { padding: 1.5rem; }
-      .resources-grid { grid-template-columns: 1fr; }
-      .stats-banner-inner { grid-template-columns: repeat(2, 1fr); }
-      .stat-banner-item:nth-child(2) { border-right: none; }
-      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
-      .footer-bottom { flex-direction: column; text-align: center; gap: 0.5rem; }
-      .form-row { grid-template-columns: 1fr; }
-      .newsletter-form { flex-direction: column; }
-      .projects-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 480px) {
-      .posts-grid { grid-template-columns: 1fr; }
-      .skills-grid { grid-template-columns: 1fr; }
-      .section-container { padding: 4rem 1rem; }
-      .certs-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  /* Flying letter */
+  .flying-letter {
+    position: fixed; font-size: 42px; z-index: 10; pointer-events: none;
+    animation: flyAway 1.6s ease-in forwards;
+  }
+  @keyframes flyAway {
+    0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+    70%  { opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(25deg) scale(.4); opacity: 0; }
+  }
+  /* Falling hearts */
+  .heart {
+    position: fixed; top: -40px; font-size: 20px; z-index: 9; pointer-events: none;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+</style>
 </head>
 <body>
 
-<div id="reading-progress"></div>
-<canvas id="bg-canvas"></canvas>
+  <div class="card" id="formCard">
+    <h1>💌 Hộp Thư Bí Mật</h1>
+    <p class="subtitle">Gửi lời nhắn ẩn danh đến ai đó mà bạn chưa dám nói!</p>
 
-<!-- NAVBAR -->
-<nav id="navbar">
-  <a href="#home" class="nav-logo">
-    <div class="nav-logo-dot"></div>
-    DLMLoc<span>.dev</span>
-  </a>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="#home"><i class="fa fa-house"></i> Trang Chủ</a></li>
-    <li><a href="#about"><i class="fa fa-user"></i> Giới Thiệu</a></li>
-    <li><a href="#projects"><i class="fa fa-code-branch"></i> Dự Án</a></li>
-    <li><a href="#posts"><i class="fa fa-newspaper"></i> Bài Viết</a></li>
-    <li><a href="#resources"><i class="fa fa-book"></i> Tài Nguyên</a></li>
-    <li><a href="#contact"><i class="fa fa-envelope"></i> Liên Hệ</a></li>
-  </ul>
-  <div class="nav-right">
-    <a href="#contact" class="nav-cta"><i class="fa fa-paper-plane"></i> Nhắn tin</a>
-    <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
+    <div class="guideline">
+      💡 Lưu ý: lời nhắn được gửi ẩn danh, nhưng hãy viết bằng thiện chí — tránh xúc phạm,
+      chế giễu hay bịa đặt về người khác. Ban tổ chức có quyền không đọc/công bố những lời nhắn
+      không phù hợp.
+    </div>
+
+    <form id="secretForm" action="https://formspree.io/f/xqpzlgkr" method="POST">
+
+      <input type="text" name="_gotcha" class="honeypot" tabindex="-1" autocomplete="off">
+
+      <div class="form-group">
+        <label for="receiver">🎯 Lời nhắn này dành cho ai?</label>
+        <input type="text" id="receiver" name="Người nhận" maxlength="60" placeholder="Nhập tên/biệt danh người nhận..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="category">🏷️ Chủ đề lời nhắn:</label>
+        <select id="category" name="Chủ đề">
+          <option value="Lời demo">Lời demo</option>
+          <option value="Góp ý chân thành 💡">Góp ý chân thành 💡</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="message">✍️ Nội dung lời nhắn:</label>
+        <textarea id="message" name="Lời nhắn" maxlength="500" placeholder="Viết những điều bạn muốn gửi gắm tại đây..." required></textarea>
+        <div class="char-count" id="charCount">0 / 500</div>
+      </div>
+      <div class="error-text" id="errorText"></div>
+
+      <label class="consent">
+        <input type="checkbox" id="consent" required>
+        Tôi cam kết lời nhắn này thiện chí, tôn trọng và không nhằm xúc phạm ai.
+      </label>
+
+      <button type="submit" id="submitBtn">🚀 Gửi Lời Nhắn Âm Thầm</button>
+    </form>
   </div>
-</nav>
 
-<!-- HERO -->
-<section id="home">
-  <div class="hero-bg-orb hero-bg-orb-1"></div>
-  <div class="hero-bg-orb hero-bg-orb-2"></div>
-  <div class="hero-inner">
-    <div class="hero-eyebrow">
-      <div class="hero-eyebrow-dot"></div>
-      Sinh viên Sư Phạm Tin Học · Đại học Đà Lạt
-    </div>
-    <h1 class="hero-name">
-      <span class="hero-name-line1">Hello, I'm</span>
-      Danh <span class="grad">Lê Minh Lộc</span>
-    </h1>
-    <div class="hero-title-row">
-      <span class="hero-title-badge">📚 Sư Phạm Tin Học</span>
-      <span class="hero-title-badge" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#6ee7b7;">💻 Developer</span>
-      <span class="hero-title-badge" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#fcd34d;">✍️ Tech Blogger</span>
-    </div>
-    <p class="hero-sub">Khoa Sư Phạm · Trường Đại học Đà Lạt</p>
-    <p class="hero-class">Lớp THK49SP · Năm học 2025–2026</p>
-    <div class="typing-wrapper">
-      Đang nghiên cứu: <span class="typing-text" id="typingText"></span><span class="cursor"></span>
-    </div>
-    <div class="hero-btns">
-      <a href="#posts" class="btn-primary"><i class="fa fa-book-open"></i> Đọc Bài Viết</a>
-      <a href="#projects" class="btn-outline"><i class="fa fa-code-branch"></i> Xem Dự Án</a>
-      <a href="#contact" class="btn-outline" style="border-color:rgba(108,60,225,0.3);color:#a78bfa;"><i class="fa fa-envelope"></i> Liên Hệ</a>
-    </div>
-    <div class="hero-stats">
-      <div class="stat-item">
-        <span class="stat-num" data-count="24">0</span>
-        <span class="stat-label">Bài viết</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num" data-count="4">0</span>
-        <span class="stat-label">Chủ đề</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num" data-count="3">0</span>
-        <span class="stat-label">Dự án</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num" data-count="6">0</span>
-        <span class="stat-label">Kỹ năng</span>
-      </div>
-    </div>
+  <!-- Màn hình thông báo sau khi gửi -->
+  <div class="card" id="thankYouMsg">
+    <h2>🎉 Đã Gửi Thành Công!</h2>
+    <p>Lời nhắn ẩn danh của bạn đã được đóng dấu niêm phong và gửi đi an toàn.</p>
+    <p><i>Cảm ơn bạn đã chia sẻ cảm xúc!</i></p>
+    <button onclick="resetForm()" style="background:#764ba2;margin-top:15px;">Gửi thêm lời nhắn khác ✉️</button>
   </div>
-  <div class="scroll-indicator">
-    <div class="scroll-indicator-line"></div>
-    <span>Scroll</span>
-  </div>
-</section>
 
-<!-- STATS BANNER -->
-<div id="stats-banner">
-  <div class="stats-banner-inner">
-    <div class="stat-banner-item fade-up">
-      <div class="stat-banner-icon"><i class="fa fa-laptop-code"></i></div>
-      <div class="stat-banner-num"><span>5</span>+</div>
-      <div class="stat-banner-label">Ngôn ngữ & Công cụ</div>
-    </div>
-    <div class="stat-banner-item fade-up fade-up-delay-1">
-      <div class="stat-banner-icon" style="background:rgba(108,60,225,0.08);color:var(--accent2);"><i class="fa fa-graduation-cap"></i></div>
-      <div class="stat-banner-num"><span>2</span> năm</div>
-      <div class="stat-banner-label">Kinh nghiệm học tập</div>
-    </div>
-    <div class="stat-banner-item fade-up fade-up-delay-2">
-      <div class="stat-banner-icon" style="background:rgba(245,158,11,0.08);color:var(--accent3);"><i class="fa fa-pen-to-square"></i></div>
-      <div class="stat-banner-num"><span>24</span>+</div>
-      <div class="stat-banner-label">Bài viết chuyên sâu</div>
-    </div>
-    <div class="stat-banner-item fade-up fade-up-delay-3">
-      <div class="stat-banner-icon" style="background:rgba(16,185,129,0.08);color:var(--accent4);"><i class="fa fa-users"></i></div>
-      <div class="stat-banner-num"><span>100</span>%</div>
-      <div class="stat-banner-label">Tâm huyết với nghề</div>
-    </div>
-  </div>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="section-container">
-    <div class="section-header fade-up">
-      <span class="section-tag">// about_me.json</span>
-      <h2 class="section-title">Giới Thiệu <span>Bản Thân</span></h2>
-      <div class="section-line"></div>
-      <p class="section-desc">Sinh viên Sư Phạm Tin Học với đam mê công nghệ và mong muốn truyền cảm hứng cho thế hệ học sinh tương lai.</p>
-    </div>
-    <div class="about-grid">
-      <div class="fade-up">
-        <div class="avatar-card">
-          <div class="avatar-card-header">
-            <div class="avatar-img-wrap">
-              <div class="avatar-img">
-                <svg class="avatar-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="avatarBg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1e3a5f"/><stop offset="100%" style="stop-color:#0d1f40"/></linearGradient>
-                    <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f5c5a3"/><stop offset="100%" style="stop-color:#e8a87c"/></linearGradient>
-                    <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00d4ff"/><stop offset="100%" style="stop-color:#6c3ce1"/></linearGradient>
-                    <clipPath id="avatarClip"><circle cx="60" cy="60" r="60"/></clipPath>
-                  </defs>
-                  <circle cx="60" cy="60" r="60" fill="url(#avatarBg)"/>
-                  <g clip-path="url(#avatarClip)" opacity="0.15">
-                    <line x1="0" y1="20" x2="120" y2="20" stroke="#00d4ff" stroke-width="0.5"/>
-                    <line x1="0" y1="40" x2="120" y2="40" stroke="#00d4ff" stroke-width="0.5"/>
-                    <line x1="0" y1="60" x2="120" y2="60" stroke="#00d4ff" stroke-width="0.5"/>
-                    <line x1="0" y1="80" x2="120" y2="80" stroke="#00d4ff" stroke-width="0.5"/>
-                    <line x1="20" y1="0" x2="20" y2="120" stroke="#00d4ff" stroke-width="0.5"/>
-                    <line x1="40" y1="0" x2="40" y2="120" stroke="#00d4ff" stroke-width="0.5"/>
-                    <line x1="60" y1="0" x2="60" y2="120" stroke="#00d4ff" stroke-width="0.5"/>
-                    <line x1="80" y1="0" x2="80" y2="120" stroke="#00d4ff" stroke-width="0.5"/>
-                    <line x1="100" y1="0" x2="100" y2="120" stroke="#00d4ff" stroke-width="0.5"/>
-                  </g>
-                  <ellipse cx="60" cy="105" rx="38" ry="28" fill="url(#shirtGrad)" clip-path="url(#avatarClip)"/>
-                  <rect x="53" y="74" width="14" height="14" rx="5" fill="url(#skinGrad)"/>
-                  <ellipse cx="60" cy="58" rx="24" ry="26" fill="url(#skinGrad)"/>
-                  <ellipse cx="60" cy="38" rx="24" ry="14" fill="#2c1a0e"/>
-                  <ellipse cx="60" cy="33" rx="22" ry="12" fill="#3a2010"/>
-                  <rect x="36" y="38" width="6" height="14" rx="3" fill="#2c1a0e"/>
-                  <rect x="78" y="38" width="6" height="14" rx="3" fill="#2c1a0e"/>
-                  <ellipse cx="36" cy="60" rx="4.5" ry="6" fill="#e8a87c"/>
-                  <ellipse cx="84" cy="60" rx="4.5" ry="6" fill="#e8a87c"/>
-                  <ellipse cx="51" cy="58" rx="5" ry="5.5" fill="white"/>
-                  <ellipse cx="69" cy="58" rx="5" ry="5.5" fill="white"/>
-                  <circle cx="52" cy="59" r="3" fill="#1a0a30"/>
-                  <circle cx="70" cy="59" r="3" fill="#1a0a30"/>
-                  <circle cx="53" cy="57.5" r="1" fill="white"/>
-                  <circle cx="71" cy="57.5" r="1" fill="white"/>
-                  <path d="M46 52 Q51 50 56 52" stroke="#2c1a0e" stroke-width="2" fill="none" stroke-linecap="round"/>
-                  <path d="M64 52 Q69 50 74 52" stroke="#2c1a0e" stroke-width="2" fill="none" stroke-linecap="round"/>
-                  <path d="M52 68 Q60 74 68 68" stroke="#c07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-                  <rect x="44" y="54" width="13" height="10" rx="5" stroke="#00d4ff" stroke-width="1.5" fill="none" opacity="0.7"/>
-                  <rect x="63" y="54" width="13" height="10" rx="5" stroke="#00d4ff" stroke-width="1.5" fill="none" opacity="0.7"/>
-                  <line x1="57" y1="59" x2="63" y2="59" stroke="#00d4ff" stroke-width="1.5" opacity="0.7"/>
-                  <rect x="51" y="92" width="18" height="11" rx="2" fill="rgba(0,0,0,0.3)"/>
-                  <rect x="52" y="93" width="16" height="8" rx="1" fill="#00d4ff" opacity="0.5"/>
-                  <line x1="48" y1="103" x2="72" y2="103" stroke="rgba(0,0,0,0.3)" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <div class="avatar-status"><div class="avatar-status-dot"></div></div>
-            </div>
-            <div class="avatar-name">Danh Lê Minh Lộc</div>
-            <div class="avatar-role">Sinh viên Sư Phạm Tin Học</div>
-          </div>
-          <div class="avatar-card-body">
-            <div class="info-row">
-              <div class="info-icon"><i class="fa fa-graduation-cap"></i></div>
-              <div><div class="info-label">Ngành học</div><div class="info-value">Sư Phạm Tin Học</div></div>
-            </div>
-            <div class="info-row">
-              <div class="info-icon"><i class="fa fa-users"></i></div>
-              <div><div class="info-label">Lớp</div><div class="info-value">THK49SP</div></div>
-            </div>
-            <div class="info-row">
-              <div class="info-icon"><i class="fa fa-school"></i></div>
-              <div><div class="info-label">Trường</div><div class="info-value">Đại học Đà Lạt</div></div>
-            </div>
-            <div class="info-row">
-              <div class="info-icon"><i class="fa fa-map-marker-alt"></i></div>
-              <div><div class="info-label">Địa điểm</div><div class="info-value">Đà Lạt, Lâm Đồng 🌸</div></div>
-            </div>
-            <div class="info-row">
-              <div class="info-icon"><i class="fa fa-calendar-alt"></i></div>
-              <div><div class="info-label">Năm học</div><div class="info-value">2025 – 2026</div></div>
-            </div>
-            <div class="info-row">
-              <div class="info-icon" style="color:var(--accent4);background:rgba(16,185,129,0.08);"><i class="fa fa-circle-dot"></i></div>
-              <div><div class="info-label">Trạng thái</div><div class="info-value" style="color:var(--accent4);">Đang học tập & nghiên cứu ✦</div></div>
-            </div>
-          </div>
-          <div class="avatar-card-footer">
-            <div class="social-links">
-              <a href="mailto:danhleminhoc@gmail.com" class="social-link" title="Email"><i class="fa fa-envelope"></i></a>
-              <a href="#" class="social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-              <a href="#" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
-              <a href="tel:0814678665" class="social-link" title="Zalo / Điện thoại"><i class="fa fa-phone"></i></a>
-            </div>
-          </div>
-        </div>
-      </div>
+  <script>
+    const form = document.getElementById('secretForm');
+    const formCard = document.getElementById('formCard');
+    const thankYouMsg = document.getElementById('thankYouMsg');
+    const messageBox = document.getElementById('message');
+    const charCount = document.getElementById('charCount');
+    const errorText = document.getElementById('errorText');
+    const submitBtn = document.getElementById('submitBtn');
 
-      <div class="about-text fade-up fade-up-delay-1">
-        <h3>Xin chào! Mình là Lộc 👋</h3>
-        <p>Mình là sinh viên năm 1 ngành <strong style="color:var(--accent);">Sư Phạm Tin Học</strong> tại Khoa Sư Phạm, Trường Đại học Đà Lạt. Với niềm đam mê sâu sắc về công nghệ giáo dục và lập trình, mình luôn tìm cách ứng dụng các công nghệ mới nhất vào phương pháp giảng dạy hiện đại.</p>
-        <p>Blog này là nơi mình ghi chép và nghiên cứu sâu về công nghệ — từ các thuật toán lập trình, xu hướng AI/ML, đến chính sách giáo dục số GDPT 2018 và phương pháp giảng dạy lấy học sinh làm trung tâm. Mình tin rằng <strong style="color:var(--text);">chia sẻ kiến thức có chứng cứ là nền tảng của người thầy giỏi.</strong></p>
-        <p>Ngoài việc học, mình đang tự nghiên cứu về <strong style="color:var(--text);">Machine Learning với Python</strong>, xây dựng các dự án web thực tế, và tìm hiểu cách tích hợp AI Tools vào lớp học. Hành trình trở thành giáo viên Tin học số không bao giờ thiếu điều thú vị! 🚀</p>
-
-        <div class="skills-section">
-          <h4>// Kỹ năng chuyên môn</h4>
-          <div class="skills-grid">
-            <div class="skill-item"><div class="skill-item-top"><div class="skill-name"><i class="fab fa-python"></i> Python</div><div class="skill-pct">78%</div></div><div class="skill-bar"><div class="skill-fill" style="width:78%"></div></div></div>
-            <div class="skill-item"><div class="skill-item-top"><div class="skill-name"><i class="fab fa-html5"></i> HTML/CSS</div><div class="skill-pct">85%</div></div><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div></div>
-            <div class="skill-item"><div class="skill-item-top"><div class="skill-name"><i class="fab fa-js"></i> JavaScript</div><div class="skill-pct">68%</div></div><div class="skill-bar"><div class="skill-fill" style="width:68%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div></div></div>
-            <div class="skill-item"><div class="skill-item-top"><div class="skill-name"><i class="fa fa-database"></i> SQL / CSDL</div><div class="skill-pct">62%</div></div><div class="skill-bar"><div class="skill-fill" style="width:62%;background:linear-gradient(90deg,#6c3ce1,#a78bfa)"></div></div></div>
-            <div class="skill-item"><div class="skill-item-top"><div class="skill-name"><i class="fa fa-chalkboard-teacher"></i> Thiết kế bài giảng</div><div class="skill-pct">88%</div></div><div class="skill-bar"><div class="skill-fill" style="width:88%;background:linear-gradient(90deg,#10b981,#059669)"></div></div></div>
-            <div class="skill-item"><div class="skill-item-top"><div class="skill-name"><i class="fa fa-robot"></i> AI & Prompt Engineering</div><div class="skill-pct">74%</div></div><div class="skill-bar"><div class="skill-fill" style="width:74%;background:linear-gradient(90deg,#ec4899,#8b5cf6)"></div></div></div>
-          </div>
-        </div>
-
-        <div class="journey-section">
-          <h4>// Hành trình học tập</h4>
-          <div class="timeline">
-            <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-year">2022 – 2025</div><div class="timeline-title">Tốt nghiệp THPT</div><div class="timeline-desc">Hoàn thành chương trình THPT với thành tích tốt. Định hướng theo ngành Công nghệ thông tin và Sư phạm — đam mê dạy học hình thành từ đây.</div></div>
-            <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-year">2025 – Hiện tại</div><div class="timeline-title">Sinh viên Sư Phạm Tin Học – ĐH Đà Lạt</div><div class="timeline-desc">Lớp THK49SP, Khoa Sư Phạm. Chuyên sâu: Lập trình Python/C++, Cơ sở dữ liệu, Phương pháp dạy học Tin, Ứng dụng CNTT trong giáo dục, Chương trình GDPT 2018.</div></div>
-            <div class="timeline-item"><div class="timeline-dot" style="background:var(--accent4);box-shadow:0 0 10px rgba(16,185,129,0.5)"></div><div class="timeline-year">2026 – Hiện tại</div><div class="timeline-title">Nghiên cứu & Blog chuyên sâu</div><div class="timeline-desc">Viết blog kỹ thuật có số liệu thực tế, tham khảo báo cáo nghiên cứu quốc tế. Tự học Machine Learning, xây dựng dự án web thực tế trên GitHub.</div></div>
-            <div class="timeline-item"><div class="timeline-dot" style="background:var(--accent3);box-shadow:0 0 10px rgba(245,158,11,0.4);opacity:0.6"></div><div class="timeline-year">2027 – Dự kiến</div><div class="timeline-title">Thực tập Sư phạm</div><div class="timeline-desc">Kiến tập và thực tập tại các trường THCS/THPT. Mục tiêu: Thiết kế 10+ giáo án theo phương pháp STEM, áp dụng flipped classroom và gamification.</div></div>
-          </div>
-        </div>
-
-        <div style="margin-top:2rem;">
-          <h4 style="font-size:0.72rem;color:var(--accent3);font-family:'Space Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;">// Sở thích & Quan tâm</h4>
-          <div class="interests-row">
-            <span class="interest-chip"><i class="fa fa-robot"></i> Trí tuệ nhân tạo</span>
-            <span class="interest-chip"><i class="fa fa-code"></i> Lập trình Web</span>
-            <span class="interest-chip"><i class="fa fa-chalkboard"></i> Giáo dục số</span>
-            <span class="interest-chip"><i class="fa fa-gamepad"></i> Liên quân Mobile</span>
-            <span class="interest-chip"><i class="fa fa-mobile"></i> Công nghệ mới</span>
-            <span class="interest-chip"><i class="fa fa-music"></i> Nghe nhạc</span>
-            <span class="interest-chip"><i class="fa fa-wrench"></i> Độ xe</span>
-            <span class="interest-chip"><i class="fa fa-plane"></i> Du lịch</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CERTS SECTION -->
-<section id="certs" style="position:relative;z-index:1;">
-  <div class="section-container">
-    <div class="section-header fade-up">
-      <span class="section-tag">// certifications[]</span>
-      <h2 class="section-title">Chứng Chỉ & <span>Thành Tích</span></h2>
-      <div class="section-line"></div>
-      <p class="section-desc">Những chứng chỉ và thành tích trong hành trình học tập và phát triển bản thân.</p>
-    </div>
-    <div class="certs-grid">
-      <div class="cert-card fade-up">
-        <div class="cert-icon" style="background:rgba(0,212,255,0.1);">🐍</div>
-        <div class="cert-body">
-          <div class="cert-title">Python Báic <span class="cert-badge">✓ Hoàn thành</span></div>
-          <div class="cert-issuer">Trường Phổ Thông DTNT tỉnh Cà Mau</div>
-          <div class="cert-date">Tháng 10, 2024</div>
-        </div>
-      </div>
-      <div class="cert-card fade-up fade-up-delay-1">
-        <div class="cert-icon" style="background:rgba(108,60,225,0.1);">🌐</div>
-        <div class="cert-body">
-          <div class="cert-title">Web Design <span class="cert-badge">✓ Hoàn thành</span></div>
-          <div class="cert-issuer">Trường Phổ Thông DTNT tỉnh Cà Mau</div>
-          <div class="cert-date">Tháng 12, 2024</div>
-        </div>
-      </div>
-      <div class="cert-card fade-up fade-up-delay-2">
-        <div class="cert-icon" style="background:rgba(245,158,11,0.1);">🤖</div>
-        <div class="cert-body">
-          <div class="cert-title">Introduction AI <span class="cert-badge">✓ Hoàn thành</span></div>
-          <div class="cert-issuer">Google · Google Digital Garage</div>
-          <div class="cert-date">Tháng 01, 2026</div>
-        </div>
-      </div>
-      <div class="cert-card fade-up fade-up-delay-3">
-        <div class="cert-icon" style="background:rgba(16,185,129,0.1);">🎓</div>
-        <div class="cert-body">
-          <div class="cert-title">Google Classroom & Workspace Edu</div>
-          <div class="cert-issuer">Google for Education</div>
-          <div class="cert-date">Tháng 02, 2026</div>
-        </div>
-      </div>
-      <div class="cert-card fade-up">
-        <div class="cert-icon" style="background:rgba(236,72,153,0.1);">🗄️</div>
-        <div class="cert-body">
-          <div class="cert-title">Digital Panting</div>
-          <div class="cert-issuer">Trường Phổ Thông DTNT tỉnh Cà Mau</div>
-          <div class="cert-date">Tháng 01, 2025</div>
-        </div>
-      </div>
-      <div class="cert-card fade-up fade-up-delay-1">
-        <div class="cert-icon" style="background:rgba(0,212,255,0.08);">🏆</div>
-        <div class="cert-body">
-          <div class="cert-title">Sinh viên Tốt HK1 2025-2026</div>
-          <div class="cert-issuer">Khoa Sư Phạm – ĐH Đà Lạt</div>
-          <div class="cert-date">Tháng 03, 2026</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="section-container">
-    <div class="section-header fade-up">
-      <span class="section-tag">// projects.filter(active)</span>
-      <h2 class="section-title">Dự Án <span>Thực Tế</span></h2>
-      <div class="section-line"></div>
-      <p class="section-desc">Các dự án mình đã và đang xây dựng — từ web app đến công cụ hỗ trợ giảng dạy.</p>
-    </div>
-    <div class="projects-grid">
-      <div class="project-card fade-up">
-        <div class="project-thumb" style="background:linear-gradient(135deg,#0f1526,#1a2240);">
-          <div class="project-thumb-grid"></div>
-          <div class="project-thumb-emoji">🌐</div>
-          <div class="project-status live">● Soon</div>
-        </div>
-        <div class="project-body">
-          <div class="project-title">Blog & Portfolio Cá Nhân</div>
-          <div class="project-desc">Website blog cá nhân với thiết kế dark-mode, particle animation, hơn 24 bài viết chuyên sâu, bộ lọc theo chủ đề và modal đọc bài đầy đủ.</div>
-          <div class="project-tech">
-            <span class="project-tech-tag">HTML5</span>
-            <span class="project-tech-tag">CSS3</span>
-            <span class="project-tech-tag">Vanilla JS</span>
-            <span class="project-tech-tag">Canvas API</span>
-          </div>
-          <div class="project-links">
-            <a href="#home" class="project-link primary"><i class="fa fa-eye"></i> Sắp ra mắt</a>
-            <a href="#" class="project-link secondary"><i class="fab fa-github"></i> GitHub</a>
-          </div>
-        </div>
-      </div>
-      <div class="project-card fade-up fade-up-delay-1">
-        <div class="project-thumb" style="background:linear-gradient(135deg,#0a1215,#0d2030);">
-          <div class="project-thumb-grid"></div>
-          <div class="project-thumb-emoji">🧠</div>
-          <div class="project-status wip">⚡ Soon</div>
-        </div>
-        <div class="project-body">
-          <div class="project-title">Quiz App Giáo Dục Tin Học</div>
-          <div class="project-desc">Ứng dụng trắc nghiệm Tin học cho học sinh THPT, tích hợp hệ thống chấm điểm tự động, bộ câu hỏi theo GDPT 2018, giao diện thân thiện.</div>
-          <div class="project-tech">
-            <span class="project-tech-tag">Python</span>
-            <span class="project-tech-tag">Flask</span>
-            <span class="project-tech-tag">SQLite</span>
-            <span class="project-tech-tag">Bootstrap</span>
-          </div>
-          <div class="project-links">
-            <a href="#" class="project-link primary"><i class="fa fa-clock"></i> Sắp ra mắt</a>
-            <a href="#" class="project-link secondary"><i class="fab fa-github"></i> GitHub</a>
-          </div>
-        </div>
-      </div>
-      <div class="project-card fade-up fade-up-delay-2">
-        <div class="project-thumb" style="background:linear-gradient(135deg,#0f150a,#1e2a14);">
-          <div class="project-thumb-grid"></div>
-          <div class="project-thumb-emoji">📊</div>
-          <div class="project-status wip">⚡ Soon</div>
-        </div>
-        <div class="project-body">
-          <div class="project-title">Công cụ phân tích và trực quan hóa dữ liệu</div>
-          <div class="project-desc">Công cụ phân tích và trực quan hóa dữ lieu việc làm thêm sinh viên lấy data từ bài đăng trong các hội nhóm Facebôk.</div>
-          <div class="project-tech">
-            <span class="project-tech-tag">Python</span>
-            <span class="project-tech-tag">Pandas</span>
-            <span class="project-tech-tag">Matplotlib</span>
-            <span class="project-tech-tag">Jupyter</span>
-          </div>
-          <div class="project-links">
-            <a href="#" class="project-link primary"><i class="fa fa-clock"></i> Sắp ra mắt</a>
-            <a href="#" class="project-link secondary"><i class="fab fa-github"></i> GitHub</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- POSTS -->
-<section id="posts">
-  <div class="section-container">
-    <div class="section-header fade-up">
-      <span class="section-tag">// blog_posts.map(post => post)</span>
-      <h2 class="section-title">Bài Viết <span>Chuyên Sâu</span></h2>
-      <div class="section-line"></div>
-      <p class="section-desc">Nghiên cứu và tổng hợp từ các báo cáo khoa học, tài liệu chuyên ngành — không chỉ chia sẻ mà còn phân tích sâu.</p>
-    </div>
-
-    <div class="featured-post fade-up" onclick="openModal(1)">
-      <div class="featured-thumb" style="background: linear-gradient(135deg,#0f1526,#1a2240);">
-        <div class="post-thumb-grid"></div>
-        <div class="featured-thumb-emoji">🤖</div>
-        <div class="featured-badge">⭐ Nổi bật</div>
-      </div>
-      <div class="featured-body">
-        <div class="post-cat-badge">⚡ Công nghệ</div>
-        <div class="featured-title">AI trong Giáo dục 2025: Số liệu, Xu hướng và Thách thức thực sự</div>
-        <div class="featured-excerpt">Báo cáo của UNESCO (2024) cho thấy 86% giáo viên toàn cầu đã sử dụng ít nhất một công cụ AI trong giảng dạy. Nhưng khoảng cách số và vấn đề đạo đức AI trong học đường vẫn là bài toán chưa có lời giải triệt để...</div>
-        <div class="featured-meta">
-          <span><i class="fa fa-calendar"></i> 01/02/2026</span>
-          <span><i class="fa fa-clock"></i> 8 phút đọc</span>
-          <span><i class="fa fa-eye"></i> Đọc nghiên cứu →</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-bar fade-up">
-      <button class="filter-btn active" onclick="filterPosts('all', this)"><i class="fa fa-border-all"></i> Tất cả</button>
-      <button class="filter-btn" onclick="filterPosts('tech', this)"><i class="fa fa-microchip"></i> Công nghệ</button>
-      <button class="filter-btn" onclick="filterPosts('code', this)"><i class="fa fa-code"></i> Lập trình</button>
-      <button class="filter-btn" onclick="filterPosts('edu', this)"><i class="fa fa-chalkboard"></i> Giáo dục</button>
-      <button class="filter-btn" onclick="filterPosts('life', this)"><i class="fa fa-heart"></i> Cuộc sống</button>
-    </div>
-    <div class="posts-grid" id="postsGrid"></div>
-  </div>
-</section>
-
-<!-- RESOURCES -->
-<section id="resources">
-  <div class="section-container">
-    <div class="section-header fade-up">
-      <span class="section-tag">// resources.map()</span>
-      <h2 class="section-title">Tài Nguyên <span>Học Tập</span></h2>
-      <div class="section-line"></div>
-      <p class="section-desc">Tổng hợp những tài nguyên, công cụ và nền tảng hữu ích nhất cho sinh viên ngành Sư Phạm Tin Học.</p>
-    </div>
-    <div class="resources-grid">
-      <div class="resource-card fade-up">
-        <div class="resource-icon" style="background:rgba(0,212,255,0.1);color:var(--accent);"><i class="fa fa-code"></i></div>
-        <div class="resource-title">Học Lập Trình</div>
-        <div class="resource-desc">Nền tảng học lập trình từ cơ bản đến nâng cao, đa số miễn phí hoặc có học bổng sinh viên.</div>
-        <div class="resource-links">
-          <a class="resource-link" href="https://python.org" target="_blank"><i class="fa fa-external-link"></i> Python.org – Tài liệu chính thức</a>
-          <a class="resource-link" href="https://freecodecamp.org" target="_blank"><i class="fa fa-external-link"></i> freeCodeCamp – Miễn phí 100%</a>
-          <a class="resource-link" href="https://cs50.harvard.edu" target="_blank"><i class="fa fa-external-link"></i> CS50 Harvard – Nền tảng vững chắc</a>
-          <a class="resource-link" href="https://leetcode.com" target="_blank"><i class="fa fa-external-link"></i> LeetCode – Luyện thuật toán</a>
-        </div>
-      </div>
-      <div class="resource-card fade-up fade-up-delay-1">
-        <div class="resource-icon" style="background:rgba(108,60,225,0.1);color:var(--accent2);"><i class="fa fa-chalkboard-teacher"></i></div>
-        <div class="resource-title">Sư Phạm & Giáo Dục</div>
-        <div class="resource-desc">Tài liệu về phương pháp dạy học, chương trình GDPT 2018 và công nghệ giáo dục quốc tế.</div>
-        <div class="resource-links">
-          <a class="resource-link" href="https://moet.gov.vn" target="_blank"><i class="fa fa-external-link"></i> Bộ GD&ĐT – Chương trình GDPT 2018</a>
-          <a class="resource-link" href="https://scratch.mit.edu" target="_blank"><i class="fa fa-external-link"></i> Scratch MIT – Dạy lập trình tiểu học</a>
-          <a class="resource-link" href="https://canva.com/education" target="_blank"><i class="fa fa-external-link"></i> Canva for Education – Bài giảng đẹp</a>
-          <a class="resource-link" href="https://classroom.google.com" target="_blank"><i class="fa fa-external-link"></i> Google Classroom – LMS miễn phí</a>
-        </div>
-      </div>
-      <div class="resource-card fade-up fade-up-delay-2">
-        <div class="resource-icon" style="background:rgba(245,158,11,0.1);color:var(--accent3);"><i class="fa fa-robot"></i></div>
-        <div class="resource-title">Công Cụ AI & Nghiên Cứu</div>
-        <div class="resource-desc">Các AI tools và nền tảng nghiên cứu học thuật giúp sinh viên học tập hiệu quả hơn.</div>
-        <div class="resource-links">
-          <a class="resource-link" href="https://chatgpt.com" target="_blank"><i class="fa fa-external-link"></i> ChatGPT – Trợ lý AI đa năng</a>
-          <a class="resource-link" href="https://claude.ai" target="_blank"><i class="fa fa-external-link"></i> Claude AI – Phân tích chuyên sâu</a>
-          <a class="resource-link" href="https://scholar.google.com" target="_blank"><i class="fa fa-external-link"></i> Google Scholar – Nghiên cứu khoa học</a>
-          <a class="resource-link" href="https://notion.so" target="_blank"><i class="fa fa-external-link"></i> Notion – Quản lý ghi chú thông minh</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tech Stack -->
-    <div class="fade-up" style="margin-top:3rem;">
-      <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:2rem;">
-        <div style="text-align:center;margin-bottom:2rem;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--accent);letter-spacing:2px;text-transform:uppercase;">// tech_stack đang sử dụng</span></div>
-        <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;">
-          <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.5rem 1.1rem;border-radius:8px;"><span style="font-size:1.1rem;">🐍</span><span style="font-size:0.85rem;font-weight:600;">Python</span></div>
-          <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.5rem 1.1rem;border-radius:8px;"><span style="font-size:1.1rem;">🌐</span><span style="font-size:0.85rem;font-weight:600;">HTML/CSS</span></div>
-          <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.5rem 1.1rem;border-radius:8px;"><span style="font-size:1.1rem;">⚡</span><span style="font-size:0.85rem;font-weight:600;">JavaScript</span></div>
-          <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.5rem 1.1rem;border-radius:8px;"><span style="font-size:1.1rem;">🎯</span><span style="font-size:0.85rem;font-weight:600;">Scratch</span></div>
-          <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.5rem 1.1rem;border-radius:8px;"><span style="font-size:1.1rem;">🗄️</span><span style="font-size:0.85rem;font-weight:600;">SQL</span></div>
-          <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.5rem 1.1rem;border-radius:8px;"><span style="font-size:1.1rem;">🐙</span><span style="font-size:0.85rem;font-weight:600;">Git / GitHub</span></div>
-          <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.5rem 1.1rem;border-radius:8px;"><span style="font-size:1.1rem;">📊</span><span style="font-size:0.85rem;font-weight:600;">Pandas / Matplotlib</span></div>
-          <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.5rem 1.1rem;border-radius:8px;"><span style="font-size:1.1rem;">🤖</span><span style="font-size:0.85rem;font-weight:600;">AI Tools</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Newsletter -->
-    <div class="newsletter-section fade-up" style="margin-top:3rem;">
-      <h3>📬 Đăng ký nhận bài viết mới</h3>
-      <p>Nhận thông báo khi mình đăng bài mới về công nghệ, lập trình và giáo dục. Không spam!</p>
-      <div class="newsletter-form">
-        <input type="email" class="newsletter-input" id="nlEmail" placeholder="your@email.com"/>
-        <button class="newsletter-btn" onclick="handleNewsletter()"><i class="fa fa-paper-plane"></i> Đăng ký</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-container">
-    <div class="section-header fade-up">
-      <span class="section-tag">// get_in_touch()</span>
-      <h2 class="section-title">Kết Nối <span>Với Mình</span></h2>
-      <div class="section-line"></div>
-      <p class="section-desc">Có câu hỏi về lập trình, công nghệ hay muốn trao đổi về giáo dục? Mình luôn sẵn lòng!</p>
-    </div>
-    <div class="contact-wrapper">
-      <div class="contact-left fade-up">
-        <h3>Hãy nhắn tin cho mình 💬</h3>
-        <p>Nếu bạn có câu hỏi về lập trình, muốn trao đổi về phương pháp giảng dạy Tin học, hoặc đơn giản chỉ muốn kết bạn cùng ngành — mình rất vui được nghe từ bạn! Mình thường phản hồi trong vòng 24 giờ.</p>
-        <div class="contact-methods">
-          <a class="contact-method" href="mailto:danhleminhoc@gmail.com">
-            <div class="contact-method-icon" style="background:rgba(234,88,12,0.12);color:#fb923c;"><i class="fa fa-envelope"></i></div>
-            <div class="contact-method-info"><div class="contact-method-label">Email</div><div class="contact-method-value">danhleminhoc@gmail.com</div></div>
-            <i class="fa fa-arrow-right contact-method-arrow"></i>
-          </a>
-          <a class="contact-method" href="#">
-            <div class="contact-method-icon" style="background:rgba(59,130,246,0.12);color:#60a5fa;"><i class="fab fa-facebook-f"></i></div>
-            <div class="contact-method-info"><div class="contact-method-label">Facebook</div><div class="contact-method-value">Danh Lê Minh Lộc</div></div>
-            <i class="fa fa-arrow-right contact-method-arrow"></i>
-          </a>
-          <a class="contact-method" href="tel:0814678665">
-            <div class="contact-method-icon" style="background:rgba(16,185,129,0.12);color:#34d399;"><i class="fa fa-comment-dots"></i></div>
-            <div class="contact-method-info"><div class="contact-method-label">Zalo / Điện thoại</div><div class="contact-method-value">0814 678 665</div></div>
-            <i class="fa fa-arrow-right contact-method-arrow"></i>
-          </a>
-          <a class="contact-method" href="#">
-            <div class="contact-method-icon" style="background:rgba(255,255,255,0.06);color:var(--text2);"><i class="fab fa-github"></i></div>
-            <div class="contact-method-info"><div class="contact-method-label">GitHub</div><div class="contact-method-value">github.com/danhleminhoc</div></div>
-            <i class="fa fa-arrow-right contact-method-arrow"></i>
-          </a>
-          <a class="contact-method" href="#">
-            <div class="contact-method-icon" style="background:rgba(245,158,11,0.12);color:#fcd34d;"><i class="fa fa-map-marker-alt"></i></div>
-            <div class="contact-method-info"><div class="contact-method-label">Địa điểm</div><div class="contact-method-value">Đà Lạt, Lâm Đồng 🌸</div></div>
-            <i class="fa fa-arrow-right contact-method-arrow"></i>
-          </a>
-        </div>
-        <div style="margin-top:1.5rem;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius2);overflow:hidden;">
-          <div style="height:120px;background:linear-gradient(135deg,#0d1428,#1a2844);display:flex;align-items:center;justify-content:center;gap:0.75rem;position:relative;">
-            <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:20px 20px;"></div>
-            <i class="fa fa-map-location-dot" style="font-size:2rem;color:var(--accent);position:relative;z-index:1;"></i>
-            <div style="position:relative;z-index:1;">
-              <div style="font-weight:700;font-size:0.95rem;">Đà Lạt, Lâm Đồng</div>
-              <div style="font-size:0.78rem;color:var(--text2);">Trường Đại học Đà Lạt · Khoa Sư Phạm</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="fade-up fade-up-delay-1">
-        <div class="contact-form-card">
-          <h4><i class="fa fa-paper-plane"></i> Gửi tin nhắn cho mình</h4>
-          <div class="form-row">
-            <div class="form-group"><label>Họ và tên</label><input type="text" id="f-name" placeholder="Nguyễn Văn A"/></div>
-            <div class="form-group"><label>Email</label><input type="email" id="f-email" placeholder="example@email.com"/></div>
-          </div>
-          <div class="form-group" style="margin-top:1rem;">
-            <label>Chủ đề</label>
-            <select id="f-topic">
-              <option value="">– Chọn chủ đề –</option>
-              <option value="code">Hỏi về lập trình</option>
-              <option value="edu">Trao đổi về giáo dục</option>
-              <option value="tech">Công nghệ & AI</option>
-              <option value="collab">Hợp tác / Dự án</option>
-              <option value="other">Khác</option>
-            </select>
-          </div>
-          <div class="form-group" style="margin-top:1rem;">
-            <label>Nội dung tin nhắn</label>
-            <textarea id="f-msg" placeholder="Xin chào Lộc! Mình muốn hỏi về..."></textarea>
-          </div>
-          <button class="form-submit" onclick="handleSubmit()"><i class="fa fa-paper-plane"></i> Gửi tin nhắn</button>
-          <p style="font-size:0.72rem;color:var(--text3);text-align:center;margin-top:0.8rem;line-height:1.6;">🔒 Thông tin của bạn được bảo mật. Mình sẽ phản hồi trong 24 giờ.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <a href="#home" class="nav-logo"><div class="nav-logo-dot"></div>DLMLoc<span>.dev</span></a>
-        <p>Blog chuyên sâu của <strong>Danh Lê Minh Lộc</strong> — sinh viên Sư Phạm Tin Học, Trường Đại học Đà Lạt. Chia sẻ kiến thức có chứng cứ về công nghệ, lập trình và giáo dục số.</p>
-        <div class="footer-social">
-          <a href="mailto:danhleminhoc@gmail.com" title="Email"><i class="fa fa-envelope"></i></a>
-          <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
-          <a href="tel:0814678665" title="Điện thoại"><i class="fa fa-phone"></i></a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h5>Điều hướng</h5>
-        <ul>
-          <li><a href="#home"><i class="fa fa-chevron-right"></i> Trang chủ</a></li>
-          <li><a href="#about"><i class="fa fa-chevron-right"></i> Giới thiệu</a></li>
-          <li><a href="#projects"><i class="fa fa-chevron-right"></i> Dự án</a></li>
-          <li><a href="#posts"><i class="fa fa-chevron-right"></i> Bài viết</a></li>
-          <li><a href="#resources"><i class="fa fa-chevron-right"></i> Tài nguyên</a></li>
-          <li><a href="#contact"><i class="fa fa-chevron-right"></i> Liên hệ</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Chủ đề</h5>
-        <ul>
-          <li><a href="#posts" onclick="filterFromFooter('tech')"><i class="fa fa-microchip"></i> Công nghệ</a></li>
-          <li><a href="#posts" onclick="filterFromFooter('code')"><i class="fa fa-code"></i> Lập trình</a></li>
-          <li><a href="#posts" onclick="filterFromFooter('edu')"><i class="fa fa-graduation-cap"></i> Giáo dục</a></li>
-          <li><a href="#posts" onclick="filterFromFooter('life')"><i class="fa fa-heart"></i> Cuộc sống</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Liên lạc</h5>
-        <ul>
-          <li><a href="mailto:danhleminhoc@gmail.com"><i class="fa fa-envelope"></i> danhleminhoc@gmail.com</a></li>
-          <li><a href="tel:0814678665"><i class="fa fa-phone"></i> 0814 678 665</a></li>
-          <li><a href="#"><i class="fa fa-map-marker-alt"></i> Đà Lạt, Lâm Đồng</a></li>
-          <li><a href="#"><i class="fab fa-github"></i> danhleminhoc</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <div class="footer-bottom-left">© 2025–2026 Danh Lê Minh Lộc · Đang học xây dựng với <i class="fa fa-heart heart"></i> bằng HTML/CSS/JS thuần</div>
-      <div>Khoa Sư Phạm · Trường Đại học Đà Lạt · Lớp THK49SP</div>
-    </div>
-  </div>
-</footer>
-
-<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang"><i class="fa fa-arrow-up"></i></button>
-<div class="toast" id="toast"><i class="fa fa-circle-check"></i><span id="toastMsg">Đã gửi thành công!</span></div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modal" onclick="closeModal(event)">
-  <div class="modal-box">
-    <div class="modal-header-img" id="modalHeaderImg"><div class="modal-header-img-grid"></div><span id="modalEmoji" style="position:relative;z-index:1;font-size:5rem;"></span></div>
-    <div class="modal-head">
-      <button class="modal-close" onclick="closeModalDirect()"><i class="fa fa-xmark"></i></button>
-      <div class="modal-cat" id="modalCat"></div>
-      <h2 class="modal-title" id="modalTitle"></h2>
-      <div class="modal-meta" id="modalMeta"></div>
-    </div>
-    <div class="modal-content" id="modalContent"></div>
-  </div>
-</div>
-
-<script>
-// ===== PARTICLE CANVAS =====
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-for (let i = 0; i < 70; i++) {
-  particles.push({ x: Math.random()*window.innerWidth, y: Math.random()*window.innerHeight, r: Math.random()*1.4+0.3, dx: (Math.random()-0.5)*0.25, dy: (Math.random()-0.5)*0.25, alpha: Math.random()*0.35+0.08, color: Math.random()>0.7?'108,60,225':'0,212,255' });
-}
-function drawParticles() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach((p,i) => {
-    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(${p.color},${p.alpha})`; ctx.fill();
-    particles.slice(i+1).forEach(p2 => {
-      const d = Math.hypot(p.x-p2.x,p.y-p2.y);
-      if(d<120){ ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p2.x,p2.y); ctx.strokeStyle=`rgba(0,212,255,${0.06*(1-d/120)})`; ctx.lineWidth=0.5; ctx.stroke(); }
+    messageBox.addEventListener('input', () => {
+      const len = messageBox.value.length;
+      charCount.textContent = `${len} / 500`;
+      charCount.classList.toggle('warn', len > 450);
     });
-    p.x+=p.dx; p.y+=p.dy;
-    if(p.x<0||p.x>canvas.width) p.dx*=-1;
-    if(p.y<0||p.y>canvas.height) p.dy*=-1;
-  });
-  requestAnimationFrame(drawParticles);
-}
-drawParticles();
 
-// ===== TYPING EFFECT =====
-const phrases = ['AI & Machine Learning','Phương pháp dạy học số','Lập trình Python / JS','Chương trình GDPT 2018','Thiết kế bài giảng STEM','Công nghệ giáo dục EdTech'];
-let pi = 0, ci = 0, deleting = false;
-function typeEffect() {
-  const el = document.getElementById('typingText');
-  if (!el) return;
-  const phrase = phrases[pi];
-  if (!deleting) {
-    el.textContent = phrase.substring(0, ci+1); ci++;
-    if (ci === phrase.length) { deleting = true; setTimeout(typeEffect, 1800); return; }
-    setTimeout(typeEffect, 65);
-  } else {
-    el.textContent = phrase.substring(0, ci-1); ci--;
-    if (ci === 0) { deleting = false; pi = (pi+1)%phrases.length; setTimeout(typeEffect, 400); return; }
-    setTimeout(typeEffect, 35);
-  }
-}
-setTimeout(typeEffect, 1200);
+    function showError(msg) {
+      errorText.textContent = msg;
+      errorText.style.display = 'block';
+    }
+    function hideError() {
+      errorText.style.display = 'none';
+    }
 
-// ===== READING PROGRESS =====
-window.addEventListener('scroll', () => {
-  const dh = document.documentElement.scrollHeight - window.innerHeight;
-  document.getElementById('reading-progress').style.width = (window.scrollY/dh*100)+'%';
-});
+    function spawnHearts() {
+      const emojis = ['💖', '💕', '💗', '❤️'];
+      for (let i = 0; i < 16; i++) {
+        setTimeout(() => {
+          const h = document.createElement('div');
+          h.className = 'heart';
+          h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          h.style.left = Math.random() * 100 + 'vw';
+          h.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+          h.style.fontSize = (16 + Math.random() * 16) + 'px';
+          document.body.appendChild(h);
+          setTimeout(() => h.remove(), 5000);
+        }, i * 80);
+      }
+    }
 
-// ===== NAVBAR =====
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY>50);
-  document.getElementById('scrollTop').classList.toggle('show', window.scrollY>400);
-  ['home','about','projects','posts','resources','contact'].forEach(id => {
-    const el = document.getElementById(id); if(!el) return;
-    const top = el.offsetTop-90, bottom = top+el.offsetHeight;
-    const link = document.querySelector(`.nav-links a[href="#${id}"]`);
-    if(link) link.classList.toggle('active', window.scrollY>=top && window.scrollY<bottom);
-  });
-});
-function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }
-document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open')));
+    function spawnFlyingLetter(originEl) {
+      const rect = originEl.getBoundingClientRect();
+      const letter = document.createElement('div');
+      letter.className = 'flying-letter';
+      letter.textContent = '💌';
+      letter.style.left = (rect.left + rect.width / 2 - 21) + 'px';
+      letter.style.top = (rect.top + rect.height / 2 - 21) + 'px';
+      letter.style.setProperty('--dx', (window.innerWidth * 0.6) + 'px');
+      letter.style.setProperty('--dy', (-window.innerHeight * 0.5) + 'px');
+      document.body.appendChild(letter);
+      setTimeout(() => letter.remove(), 1700);
+    }
 
-// ===== COUNTER ANIMATION =====
-function animateCounters() {
-  document.querySelectorAll('[data-count]').forEach(el => {
-    const target = parseInt(el.getAttribute('data-count')); let cur = 0;
-    const step = target/40;
-    const t = setInterval(() => { cur+=step; if(cur>=target){cur=target;clearInterval(t);} el.textContent=Math.floor(cur)+(target>=4?'+':''); },30);
-  });
-}
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      hideError();
 
-// ===== SCROLL REVEAL =====
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); if(e.target.id==='home') animateCounters(); } });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-setTimeout(animateCounters, 800);
+      if (messageBox.value.trim().length < 5) {
+        showError('Lời nhắn hơi ngắn, hãy viết thêm một chút nhé 🙂');
+        return;
+      }
+      if (!document.getElementById('consent').checked) {
+        showError('Vui lòng xác nhận cam kết trước khi gửi.');
+        return;
+      }
 
-// ===== POSTS DATA =====
-const posts = [
-  {
-    id: 1, cat: 'tech', emoji: '🤖', color: 'linear-gradient(135deg,#0f1526,#1a2240)',
-    title: 'AI trong Giáo dục 2025: Số liệu, Xu hướng và Thách thức thực sự',
-    date: '01/02/2026', readTime: '8 phút',
-    tags: ['AI', 'Giáo dục số'],
-    excerpt: 'Báo cáo UNESCO (2024): 86% giáo viên toàn cầu dùng AI trong dạy học. Nhưng khoảng cách số và đạo đức AI vẫn là bài toán chưa giải triệt để.',
-    content: `<p>Theo <strong>Báo cáo Giáo dục Toàn cầu UNESCO 2024</strong>, AI đang hiện diện trong lớp học trên toàn thế giới với tốc độ chưa từng có trong lịch sử giáo dục hiện đại.</p>
-    <div class="tip-box"><span class="tip-label">📊 Số liệu chính từ UNESCO 2024</span><p>86% giáo viên OECD đã dùng ≥1 công cụ AI. Tuy nhiên, chỉ 45% được đào tạo bài bản về AI literacy. Tại Đông Nam Á, tỷ lệ này chỉ đạt 31%.</p></div>
-    <h3>🌍 Bức tranh toàn cầu năm 2025</h3>
-    <p>Thị trường EdTech toàn cầu đạt <span class="stat-highlight">$340 tỷ USD</span> năm 2024, dự kiến vượt <span class="stat-highlight">$605 tỷ USD</span> vào 2027 (HolonIQ, 2024). Riêng phân khúc AI in Education chiếm 18% và tăng trưởng 38%/năm — nhanh gấp đôi tốc độ chung của ngành.</p>
-    <h3>⚡ 5 ứng dụng AI được giáo viên dùng nhiều nhất</h3>
-    <ul><li><strong>Cá nhân hóa nội dung học:</strong> Hệ thống ITS (Intelligent Tutoring System) như Khan Academy AI điều chỉnh độ khó theo từng học sinh</li><li><strong>Tự động hóa chấm điểm:</strong> Tiết kiệm trung bình 5.4 giờ/tuần cho giáo viên (McKinsey Education Survey, 2024)</li><li><strong>Phát hiện sớm học sinh có nguy cơ:</strong> ML phân tích pattern học tập, cảnh báo trước 4-6 tuần</li><li><strong>Tạo nội dung giảng dạy:</strong> ChatGPT, Claude giúp soạn giáo án, bài tập trong vài phút</li><li><strong>Dịch thuật & hỗ trợ đa ngôn ngữ:</strong> Xóa rào cản ngôn ngữ trong lớp học đa văn hóa</li></ul>
-    <h3>⚠️ Thách thức và rủi ro thực sự</h3>
-    <blockquote>"AI không thay thế giáo viên — nhưng giáo viên biết dùng AI sẽ thay thế giáo viên không biết dùng AI." — Harvard Education Review, 2024</blockquote>
-    <p>Khoảng cách số (digital divide) là vấn đề nhức nhối nhất: 60% trường học ở các nước đang phát triển chưa có băng thông đủ để dùng AI tools. Tại Việt Nam, theo báo cáo Bộ GD&ĐT 2024, chỉ 38% trường THPT tại vùng nông thôn có hạ tầng ICT đáp ứng yêu cầu chuyển đổi số.</p>`
-  },
-  {
-    id: 2, cat: 'code', emoji: '🐍', color: 'linear-gradient(135deg,#0a1215,#0d2030)',
-    title: 'Python 3.13 – Những tính năng mới quan trọng nhất cho lập trình viên',
-    date: '15/01/2026', readTime: '7 phút',
-    tags: ['Python', 'Lập trình'],
-    excerpt: 'Python 3.13 ra mắt tháng 10/2024 với free-threaded mode, interactive REPL mới và cải thiện hiệu năng đáng kể. Đây là bản cập nhật quan trọng nhất trong 5 năm.',
-    content: `<p>Python 3.13 được phát hành ngày 7/10/2024, đánh dấu bước ngoặt lớn nhất kể từ Python 3.8. Bản phát hành này giải quyết một trong những điểm yếu lâu đời nhất của Python: <strong>Global Interpreter Lock (GIL)</strong>.</p>
-    <div class="tip-box"><span class="tip-label">🚀 Điểm nổi bật Python 3.13</span><p>Free-threaded mode (PEP 703) cho phép chạy multi-thread thực sự. New REPL với syntax highlighting và multiline editing. Cải thiện error messages chi tiết hơn (F-string in tracebacks). JIT compiler experimental — tốc độ tăng 2-5% trong một số workloads.</p></div>
-    <h3>🔓 Free-threaded Mode (PEP 703) — Cuộc cách mạng GIL</h3>
-    <p>GIL đã là "tội đồ" của Python multiprocessing suốt 30 năm. Python 3.13 thêm tùy chọn <code>python3.13t</code> (t = free-threaded) cho phép chạy nhiều luồng Python đồng thời thực sự. Benchmark ban đầu cho thấy tăng tốc 50-200% cho CPU-bound multi-threaded workloads.</p>
-    <h3>💡 Interactive REPL mới</h3>
-    <p>REPL (Read-Eval-Print Loop) được viết lại hoàn toàn với Python thuần (không còn phụ thuộc GNU readline). Hỗ trợ: <code>Ctrl+Z</code> để undo, paste mode, syntax highlighting màu sắc, và multiline editing thực sự.</p>
-    <h3>📚 Ứng dụng trong dạy học Tin học</h3>
-    <ul><li>Error messages dễ đọc hơn — học sinh không còn sợ traceback</li><li>REPL mới phù hợp để demo trực tiếp trên máy chiếu</li><li>Type hints được tối ưu — dạy lập trình hướng đối tượng dễ hơn</li><li><code>copy.replace()</code> mới cho dataclasses — thực hành OOP sạch hơn</li></ul>`
-  },
-  {
-    id: 3, cat: 'edu', emoji: '🎓', color: 'linear-gradient(135deg,#0a1510,#152a20)',
-    title: 'Phương pháp Flipped Classroom: Thực nghiệm tại 47 trường Việt Nam',
-    date: '10/01/2026', readTime: '9 phút',
-    tags: ['Phương pháp dạy học', 'Flipped Classroom'],
-    excerpt: 'Nghiên cứu của Viện Khoa học Giáo dục Việt Nam (2024) trên 47 trường THPT: Lớp học đảo ngược tăng kết quả học tập môn Tin học trung bình 23%. Cơ chế và điều kiện áp dụng.',
-    content: `<p>Nghiên cứu thực nghiệm của <strong>Viện Khoa học Giáo dục Việt Nam (2024)</strong> theo dõi 47 trường THPT trong 2 học kỳ cho thấy những kết quả đáng kinh ngạc về hiệu quả của mô hình Flipped Classroom (Lớp học đảo ngược).</p>
-    <div class="tip-box"><span class="tip-label">📊 Kết quả nghiên cứu VNIES 2024</span><p>Điểm trung bình môn Tin học tăng 23.4% (từ 6.8 → 8.4/10). Tỷ lệ học sinh hoàn thành bài tập tăng từ 64% → 89%. Mức độ hài lòng với môn học tăng từ 52% → 81%. <strong>Điều kiện tiên quyết:</strong> Học sinh phải có thiết bị để xem video bài giảng tại nhà.</p></div>
-    <h3>🔄 Cơ chế hoạt động của Flipped Classroom</h3>
-    <p><strong>Truyền thống:</strong> Giáo viên giảng bài trên lớp → Học sinh về nhà làm bài tập.</p>
-    <p><strong>Flipped:</strong> Học sinh xem video bài giảng ở nhà → Đến lớp thực hành, thảo luận, giải quyết vấn đề với sự hỗ trợ của giáo viên.</p>
-    <h3>🛠️ Công cụ triển khai thực tế</h3>
-    <ul><li><strong>Tạo video bài giảng:</strong> OBS Studio (miễn phí), Loom, Canva Video</li><li><strong>Quản lý lớp học:</strong> Google Classroom, Microsoft Teams Education</li><li><strong>Flipped quiz trước giờ học:</strong> Kahoot!, Quizizz, Google Forms</li><li><strong>Theo dõi tiến độ xem video:</strong> YouTube Studio Analytics, Edpuzzle</li></ul>
-    <h3>⚠️ Thách thức tại Việt Nam</h3>
-    <p>Khảo sát 1.200 học sinh tham gia nghiên cứu cho thấy 34% không có thiết bị cá nhân để xem video. 28% sống ở khu vực Internet tốc độ chậm. Đây là rào cản equity quan trọng cần giải quyết trước khi áp dụng đại trà — đặc biệt tại các trường vùng khó khăn.</p>`
-  },
-  {
-    id: 4, cat: 'code', emoji: '🌐', color: 'linear-gradient(135deg,#0f1020,#1a1030)',
-    title: 'CSS Grid vs Flexbox: Khi nào dùng cái gì? Phân tích chuyên sâu 2025',
-    date: '05/01/2026', readTime: '6 phút',
-    tags: ['CSS', 'Web Design'],
-    excerpt: 'CSS Grid và Flexbox đều mạnh nhưng giải quyết vấn đề khác nhau. Hiểu rõ bản chất 1D vs 2D, khi nào kết hợp cả hai — đây là kiến thức cốt lõi cho mọi web developer.',
-    content: `<p>Năm 2025, CSS Grid và Flexbox đã trở thành công cụ layout tiêu chuẩn — hỗ trợ 98.8% trình duyệt (caniuse.com). Nhưng sự nhầm lẫn giữa hai hệ thống vẫn là nguyên nhân hàng đầu gây ra code layout messy trong các dự án thực tế.</p>
-    <div class="tip-box"><span class="tip-label">💡 Quy tắc vàng</span><p><strong>Flexbox = 1 chiều</strong> (row OR column) → Dùng cho navigation, button groups, card nội bộ, alignment. <strong>CSS Grid = 2 chiều</strong> (rows AND columns) → Dùng cho page layout, card grids, dashboard. Kết hợp cả hai: Grid cho layout tổng thể, Flexbox cho items bên trong.</p></div>
-    <h3>📐 Flexbox — Khi bạn cần căn chỉnh linh hoạt</h3>
-    <p>Flexbox xuất sắc ở: Căn giữa theo chiều dọc (vertical centering — từng là cơn ác mộng CSS). Navigation bars. Button groups. Space distribution trong 1 chiều. <code>justify-content: space-between</code> là một trong những CSS rule được dùng nhiều nhất thế giới.</p>
-    <h3>🔲 CSS Grid — Kiến trúc layout thực sự</h3>
-    <p>Grid cho phép kiểm soát layout theo cả 2 chiều đồng thời. <code>grid-template-areas</code> đặc biệt mạnh — đặt tên khu vực và sắp xếp như bản vẽ. Subgrid (CSS Grid Level 2, 2023) giải quyết vấn đề alignment lồng nhau phức tạp.</p>
-    <h3>🏆 Pattern kết hợp tối ưu năm 2025</h3>
-    <ul><li>Page layout: CSS Grid (header, main, sidebar, footer)</li><li>Card grid: CSS Grid với <code>auto-fill minmax</code></li><li>Card nội bộ: Flexbox (icon + text + button)</li><li>Navigation: Flexbox</li><li>Form layout: CSS Grid</li><li>Tooltip/Badge alignment: Flexbox</li></ul>`
-  },
-  {
-    id: 5, cat: 'tech', emoji: '☁️', color: 'linear-gradient(135deg,#080f1a,#0d1a2a)',
-    title: 'Cloud Computing trong Giáo dục: AWS, Azure hay Google Cloud cho trường học?',
-    date: '28/12/2025', readTime: '7 phút',
-    tags: ['Cloud', 'EdTech'],
-    excerpt: 'Các nền tảng cloud đang cung cấp gói giáo dục với giảm giá 60-100%. Phân tích thực tế AWS Educate, Azure for Students và Google for Education — cái gì phù hợp nhất với bối cảnh Việt Nam?',
-    content: `<p>Theo báo cáo <strong>Gartner Hype Cycle for Education Technology 2024</strong>, cloud computing đã đạt giai đoạn "Slope of Enlightenment" — tức là không còn là "buzzword" mà đã trở thành hạ tầng thực sự thiết yếu trong giáo dục.</p>
-    <div class="tip-box"><span class="tip-label">🎓 Chương trình miễn phí cho sinh viên</span><p>AWS Educate: $100 credit/năm + 40+ lab. Azure for Students: $100/năm không cần thẻ tín dụng. Google Cloud: $300 credit 90 ngày. GitHub Student Pack: >$200,000 tool value miễn phí!</p></div>
-    <h3>☁️ So sánh ba nền tảng lớn</h3>
-    <p><strong>Google for Education:</strong> Mạnh nhất tại Việt Nam. Google Classroom đã phổ biến ở 80%+ trường THPT Việt Nam. Tích hợp Google Meet, Forms, Drive liền mạch. Miễn phí cho trường học phê duyệt. <strong>Microsoft Azure/Office 365 Education:</strong> Phổ biến ở trường đại học, doanh nghiệp. Teams Education mạnh cho hybrid learning. <strong>AWS Educate:</strong> Phù hợp đào tạo điện toán đám mây chuyên sâu.</p>
-    <h3>🏫 Khuyến nghị cho giáo viên Tin học Việt Nam</h3>
-    <ul><li>Lớp học THPT: Google Workspace for Education (miễn phí, quen thuộc)</li><li>Dạy lập trình: GitHub Codespaces hoặc Replit (IDE trên trình duyệt)</li><li>Đại học / Nghiên cứu: AWS Educate hoặc Azure (nhiều service enterprise hơn)</li><li>Lưu trữ tài liệu: Google Drive hoặc OneDrive (tích hợp sẵn với email trường)</li></ul>`
-  },
-  {
-    id: 6, cat: 'code', emoji: '🔐', color: 'linear-gradient(135deg,#0f0a0a,#1a1010)',
-    title: 'Bảo mật web cơ bản: OWASP Top 10 cho sinh viên CNTT',
-    date: '20/12/2025', readTime: '8 phút',
-    tags: ['Bảo mật', 'Web Dev'],
-    excerpt: 'OWASP Top 10 2021 vẫn là danh sách lỗ hổng bảo mật quan trọng nhất. SQL Injection, XSS và Broken Access Control tiếp tục gây thiệt hại tỷ đô mỗi năm. Hướng dẫn phòng tránh thực tế.',
-    content: `<p>Theo <strong>IBM Cost of Data Breach Report 2024</strong>, chi phí trung bình của một vụ rò rỉ dữ liệu toàn cầu đạt <span class="stat-highlight">$4.88 triệu USD</span> — mức cao nhất trong lịch sử. 68% vụ vi phạm liên quan đến các lỗ hổng trong OWASP Top 10.</p>
-    <div class="tip-box"><span class="tip-label">⚠️ OWASP Top 10 2021 — Các lỗ hổng nguy hiểm nhất</span><p>A01: Broken Access Control (chiếm 34% vụ vi phạm). A02: Cryptographic Failures. A03: Injection (SQL, Command, LDAP). A07: Identification and Authentication Failures. A10: Server-Side Request Forgery (SSRF).</p></div>
-    <h3>💉 SQL Injection — Kẻ thù số 1 của CSDL</h3>
-    <p>SQL Injection vẫn trong top 3 lỗ hổng nguy hiểm nhất dù đã được biết từ 1998. Câu truy vấn dễ tổn thương: <code>SELECT * FROM users WHERE username='$input'</code>. Input độc hại: <code>' OR '1'='1</code> — bypass hoàn toàn authentication.</p>
-    <h3>🛡️ Phòng chống thực tế</h3>
-    <ul><li><strong>Parameterized Queries / Prepared Statements:</strong> Không bao giờ nối chuỗi trực tiếp vào SQL</li><li><strong>Input Validation:</strong> Validate và sanitize mọi input từ người dùng</li><li><strong>Principle of Least Privilege:</strong> Database user chỉ có quyền tối thiểu cần thiết</li><li><strong>Content Security Policy (CSP):</strong> HTTP header ngăn XSS</li><li><strong>HTTPS everywhere:</strong> SSL/TLS cho mọi kết nối, không ngoại lệ</li></ul>
-    <h3>🎯 Thực hành an toàn: Công cụ học bảo mật</h3>
-    <p>OWASP WebGoat và DVWA (Damn Vulnerable Web Application) là các môi trường luyện tập an toàn. Học bảo mật tấn công để hiểu cách phòng thủ — đây là phương pháp được chứng nhận bởi mọi chứng chỉ bảo mật quốc tế (OSCP, CEH, CISSP).</p>`
-  },
-  {
-    id: 7, cat: 'edu', emoji: '🧑‍🏫', color: 'linear-gradient(135deg,#0a0f15,#151f2a)',
-    title: 'Thiết kế câu hỏi theo Bloom\'s Taxonomy cho môn Tin học',
-    date: '15/12/2025', readTime: '6 phút',
-    tags: ['Bloom Taxonomy', 'Kiểm tra đánh giá'],
-    excerpt: 'Bloom\'s Taxonomy (phiên bản Anderson & Krathwohl 2001) là framework đánh giá được sử dụng trong Chương trình GDPT 2018. Cách thiết kế câu hỏi 6 cấp độ cho môn Tin học.',
-    content: `<p><strong>Bloom's Taxonomy</strong> là công cụ thiết kế mục tiêu học tập và câu hỏi kiểm tra được chuẩn hóa quốc tế. Phiên bản cập nhật (2001) bởi Anderson & Krathwohl đã chuyển từ danh từ sang động từ, phù hợp hơn với đánh giá năng lực.</p>
-    <div class="tip-box"><span class="tip-label">🎯 6 cấp độ nhận thức (từ thấp đến cao)</span><p>1. <strong>Remember (Nhớ):</strong> Liệt kê, nhận dạng. 2. <strong>Understand (Hiểu):</strong> Giải thích, tóm tắt. 3. <strong>Apply (Vận dụng):</strong> Thực thi, tính toán. 4. <strong>Analyze (Phân tích):</strong> So sánh, phân biệt. 5. <strong>Evaluate (Đánh giá):</strong> Tranh luận, biện hộ. 6. <strong>Create (Sáng tạo):</strong> Thiết kế, xây dựng.</p></div>
-    <h3>💻 Ví dụ câu hỏi 6 cấp độ cho môn Lập trình Python</h3>
-    <ul>
-      <li><strong>Nhớ:</strong> "Câu lệnh nào dùng để lặp trong Python?" → Kiểm tra ghi nhớ</li>
-      <li><strong>Hiểu:</strong> "Giải thích sự khác nhau giữa while và for loop?"</li>
-      <li><strong>Vận dụng:</strong> "Viết chương trình tính tổng các số lẻ từ 1-100 dùng vòng lặp"</li>
-      <li><strong>Phân tích:</strong> "Phân tích code sau, xác định lỗi logic và giải thích tại sao"</li>
-      <li><strong>Đánh giá:</strong> "So sánh đệ quy và vòng lặp — khi nào dùng cái nào tốt hơn?"</li>
-      <li><strong>Sáng tạo:</strong> "Thiết kế thuật toán sắp xếp của riêng bạn và phân tích độ phức tạp"</li>
-    </ul>
-    <h3>📐 Phân bổ tỷ lệ trong đề kiểm tra GDPT 2018</h3>
-    <p>Theo hướng dẫn Bộ GD&ĐT: Nhận biết (20-30%), Thông hiểu (30-40%), Vận dụng (30-40%), Vận dụng cao (0-10%). Cấp độ sáng tạo thường chỉ xuất hiện trong bài tập lớn, không phải đề kiểm tra trắc nghiệm.</p>`
-  },
-  {
-    id: 8, cat: 'tech', emoji: '📱', color: 'linear-gradient(135deg,#0a0f1a,#10182a)',
-    title: 'Progressive Web App (PWA) 2025: Web hay App gốc — Cuộc chiến chưa hồi kết',
-    date: '10/12/2025', readTime: '6 phút',
-    tags: ['PWA', 'Mobile Dev'],
-    excerpt: 'PWA ngày càng thu hẹp khoảng cách với native app. Pinterest PWA tăng 60% engagement, Twitter Lite giảm 70% data usage. Khi nào nên chọn PWA thay vì React Native?',
-    content: `<p>Progressive Web Apps đã trưởng thành đáng kể. Web Push Notifications trên iOS (Safari 16.4+, 2023) — rào cản cuối cùng của PWA trên Apple — đã được gỡ bỏ. PWA giờ đây có thể làm được gần 90% những gì native app có thể làm.</p>
-    <div class="tip-box"><span class="tip-label">📊 Case studies thực tế</span><p>Pinterest PWA: -60% giảm kích thước app, +44% thời gian xem trang, +60% engagement. Twitter Lite: -70% data usage, +75% tweets gửi. Uber: Tải trong 3 giây trên mạng 2G. Tinder PWA: -90% kích thước so với native app.</p></div>
-    <h3>✅ PWA mạnh hơn Native App khi nào?</h3>
-    <ul><li>Ngân sách hạn chế: Một codebase cho cả web + mobile</li><li>SEO quan trọng: PWA được Google index bình thường</li><li>Cập nhật liên tục: Không cần user update thủ công</li><li>Audience rộng, thiết bị đa dạng: Chạy mọi nơi có trình duyệt</li></ul>
-    <h3>❌ Native App vẫn thắng khi nào?</h3>
-    <ul><li>Game hiệu năng cao (Unity, Unreal Engine)</li><li>Cần Bluetooth, NFC, ARKit/ARCore sâu</li><li>App store discovery là kênh marketing chính</li><li>Xử lý nặng: Video editing, ML on-device</li></ul>`
-  },
-  {
-    id: 9, cat: 'life', emoji: '⏰', color: 'linear-gradient(135deg,#0a0a15,#15102a)',
-    title: 'Deep Work: Khoa học đằng sau 4 tiếng học tập hiệu quả hơn 8 tiếng thường',
-    date: '05/12/2025', readTime: '5 phút',
-    tags: ['Năng suất', 'Học tập'],
-    excerpt: 'Cal Newport (Georgetown) nghiên cứu: Khả năng Deep Work là kỹ năng quý giá nhất thế kỷ 21. Neuroscience chứng minh: 4 tiếng deep work = 8 tiếng shallow work về kết quả.',
-    content: `<p><strong>Deep Work</strong> — khái niệm do giáo sư <strong>Cal Newport (Georgetown University)</strong> đề xuất trong cuốn sách cùng tên (2016) — là trạng thái tập trung hoàn toàn vào công việc trí tuệ phức tạp, không bị gián đoạn.</p>
-    <div class="tip-box"><span class="tip-label">🧠 Neuroscience đằng sau Deep Work</span><p>Khi bạn tập trung sâu, myelin sheath bao quanh dây thần kinh được tăng cường, cải thiện tốc độ và hiệu quả xử lý thần kinh. Đây là cơ chế sinh học của "becoming better" — không chỉ là cảm giác chủ quan.</p></div>
-    <h3>📊 Con số thực tế từ nghiên cứu</h3>
-    <p>Microsoft Research (2023): Nhân viên kiến thức (knowledge workers) chỉ có trung bình <span class="stat-highlight">2.5 tiếng</span> deep work thực sự/ngày. Phần còn lại là email, meetings và "shallow work". Cal Newport khẳng định: 4 tiếng deep work/ngày là đủ để tạo ra thành tích vượt trội trong hầu hết mọi lĩnh vực.</p>
-    <h3>⚙️ Hệ thống Deep Work cho sinh viên</h3>
-    <ul><li><strong>Time blocking:</strong> Đặt lịch học cụ thể — "8:00-10:00: Lập trình Python", không phải "sáng học Python"</li><li><strong>Shutdown ritual:</strong> Kết thúc ngày học bằng việc review todo và đóng máy hoàn toàn</li><li><strong>Phone-free blocks:</strong> Điện thoại ở phòng khác hoặc chế độ máy bay trong giờ học</li><li><strong>Pomodoro nâng cao:</strong> 90 phút focus (1 chu kỳ ultradian rhythm) thay vì 25 phút</li></ul>`
-  },
-  {
-    id: 10, cat: 'code', emoji: '⚡', color: 'linear-gradient(135deg,#0f1010,#151a10)',
-    title: 'Thuật toán Sắp xếp: Tại sao QuickSort không phải lúc nào cũng nhanh nhất?',
-    date: '01/12/2025', readTime: '7 phút',
-    tags: ['Thuật toán', 'Data Structures'],
-    excerpt: 'QuickSort có độ phức tạp O(n log n) trung bình nhưng O(n²) trong worst case. TimSort của Python/Java hiện đại giải quyết vấn đề này thế nào? Khi nào dùng thuật toán nào?',
-    content: `<p>Câu hỏi "Thuật toán sắp xếp nào nhanh nhất?" không có câu trả lời duy nhất — nó phụ thuộc vào kích thước dữ liệu, tính chất dữ liệu, và ngữ cảnh sử dụng. Đây là điều quan trọng cần dạy học sinh.</p>
-    <h3>📊 So sánh Big-O các thuật toán sắp xếp phổ biến</h3>
-    <ul>
-      <li><strong>Bubble Sort:</strong> O(n²) — Chỉ dùng để dạy khái niệm, không dùng thực tế</li>
-      <li><strong>Merge Sort:</strong> O(n log n) mọi trường hợp — Ổn định, dùng cho linked lists</li>
-      <li><strong>QuickSort:</strong> O(n log n) avg, O(n²) worst — Nhanh nhất thực tế nhờ cache locality</li>
-      <li><strong>HeapSort:</strong> O(n log n) mọi TH — Không ổn định, ít dùng trong thực tế</li>
-      <li><strong>TimSort:</strong> O(n log n) avg, O(n) best — Thuật toán Python/Java mặc định</li>
-    </ul>
-    <div class="tip-box"><span class="tip-label">🏆 TimSort — Thiên tài thực dụng</span><p>Tim Peters thiết kế TimSort (2002) cho Python dựa trên nhận xét: dữ liệu thực tế thường đã được sắp xếp một phần. TimSort kết hợp Merge Sort và Insertion Sort, đạt O(n) cho dữ liệu gần sắp xếp — lý do Python dùng làm thuật toán mặc định.</p></div>
-    <h3>💡 Nguyên tắc chọn thuật toán</h3>
-    <ul><li>n < 50: Insertion Sort (overhead thấp)</li><li>n > 1000, cần stable sort: Merge Sort</li><li>Dữ liệu thực tế (gần sorted): TimSort (Python default)</li><li>Cần sort tại chỗ, hiệu năng cao: QuickSort với random pivot</li></ul>`
-  },
-  {
-    id: 11, cat: 'edu', emoji: '🎮', color: 'linear-gradient(135deg,#0a0f1a,#101528)',
-    title: 'Gamification trong dạy học Tin học: Không chỉ là điểm thưởng và huy hiệu',
-    date: '25/11/2025', readTime: '6 phút',
-    tags: ['Gamification', 'Động lực học'],
-    excerpt: 'Báo cáo TalentLMS (2024): 83% nhân viên được gamified training hoàn thành khóa học, so với 41% khóa học truyền thống. Cơ chế tâm lý đằng sau và cách áp dụng đúng cách.',
-    content: `<p>Gamification không phải là trò chơi hóa bài học, mà là ứng dụng <strong>game design elements</strong> vào môi trường phi-game để tăng engagement và động lực. Sự khác biệt này quyết định thành bại của chiến lược.</p>
-    <div class="tip-box"><span class="tip-label">🧠 Cơ chế tâm lý học đằng sau</span><p>Gamification kích hoạt hệ thống reward dopaminergic trong não. Variable reward schedules (như slot machine) tạo engagement mạnh nhất. Tuy nhiên, cần tránh "hollow gamification" — chỉ thêm điểm mà không có intrinsic value.</p></div>
-    <h3>🎯 Mechanics vs Dynamics vs Aesthetics (MDA Framework)</h3>
-    <p><strong>Mechanics:</strong> Điểm số, level, achievements, leaderboard, progress bars. <strong>Dynamics:</strong> Cạnh tranh, hợp tác, tích lũy, khám phá. <strong>Aesthetics:</strong> Cảm giác thành tựu, tự do, vui vẻ, thử thách. Gamification thất bại khi chỉ có Mechanics mà thiếu Dynamics và Aesthetics.</p>
-    <h3>🛠️ Công cụ gamification cho lớp Tin học</h3>
-    <ul><li><strong>Kahoot!/Quizizz:</strong> Quiz game real-time, competitive, phù hợp ôn bài</li><li><strong>ClassDojo:</strong> Điểm hành vi tích lũy, hệ sinh thái class economy</li><li><strong>Code.org / Scratch:</strong> Gamified coding journey với project-based achievements</li><li><strong>LeetCode với class contest:</strong> Competitive programming có ranking</li></ul>
-    <h3>⚠️ Pitfalls cần tránh</h3>
-    <p>Over-competition làm tổn thương học sinh yếu. Extrinsic rewards có thể giảm intrinsic motivation (Self-Determination Theory — Deci & Ryan, 1985). Leaderboard chỉ nên show top nhóm hoặc cải tiến cá nhân, không phải xếp hạng tuyệt đối.</p>`
-  },
-  {
-    id: 12, cat: 'tech', emoji: '🔗', color: 'linear-gradient(135deg,#0a0f1a,#0d1520)',
-    title: 'Internet of Things (IoT) và Giáo dục: Phòng học thông minh không còn là viễn tưởng',
-    date: '20/11/2025', readTime: '5 phút',
-    tags: ['IoT', 'Smart Classroom'],
-    excerpt: 'Thị trường EdTech IoT đạt $11.4 tỷ USD năm 2024. Smart classroom với cảm biến, màn hình tương tác và hệ thống theo dõi học sinh đang triển khai tại 2.400+ trường Việt Nam.',
-    content: `<p>Theo <strong>Báo cáo Chuyển đổi số Giáo dục Bộ GD&ĐT (2024)</strong>, Việt Nam đặt mục tiêu 100% cơ sở giáo dục phổ thông có hạ tầng kỹ thuật số vào 2030. IoT là một trong 5 công nghệ trụ cột của lộ trình này.</p>
-    <div class="tip-box"><span class="tip-label">📊 Số liệu triển khai tại Việt Nam 2024</span><p>2.400+ trường đã lắp màn hình tương tác (interactive display). 85% trường TP.HCM có WiFi phủ sóng toàn trường. 340 trường triển khai thí điểm smart classroom với camera AI theo dõi engagement. Ngân sách ICT giáo dục 2024: 2.847 tỷ VND.</p></div>
-    <h3>🏫 Thành phần của Smart Classroom chuẩn 2025</h3>
-    <ul><li><strong>Interactive Display (85"):</strong> Thay bảng đen, tích hợp Android, viết tay AI-recognition</li><li><strong>Environmental sensors:</strong> Đo CO₂, nhiệt độ, ánh sáng — tối ưu môi trường học</li><li><strong>AI attendance system:</strong> Face recognition tự động điểm danh (đang tranh cãi về privacy)</li><li><strong>Connectivity:</strong> WiFi 6 (802.11ax), bandwidth tối thiểu 100Mbps cho 40 học sinh</li></ul>
-    <h3>⚡ Arduino/Raspberry Pi trong dạy học IoT</h3>
-    <p>Chương trình GDPT 2018 cho phép tích hợp IoT vào chuyên đề Tin học lớp 10-12. Arduino Uno (khoảng 150k VND) + cảm biến cơ bản = bài thực hành IoT đầy đủ. Đây là cơ hội để dạy học liên môn Tin học + Vật lý + Toán.</p>`
-  },
-  {
-    id: 13, cat: 'life', emoji: '🧘', color: 'linear-gradient(135deg,#0a0f0a,#101a10)',
-    title: 'Burnout ở sinh viên CNTT: Nhận biết sớm và phục hồi bằng khoa học',
-    date: '15/11/2025', readTime: '5 phút',
-    tags: ['Sức khỏe', 'Tâm lý'],
-    excerpt: 'WHO (2019) chính thức công nhận Burnout là hội chứng nghề nghiệp. Sinh viên CNTT có tỷ lệ burnout cao hơn 40% so với các ngành khác. Dấu hiệu nhận biết và phương pháp phục hồi dựa trên bằng chứng.',
-    content: `<p><strong>Burnout</strong> được WHO chính thức đưa vào ICD-11 (2019) như một "occupational phenomenon" — không phải bệnh, nhưng là hội chứng ảnh hưởng nghiêm trọng đến sức khỏe và hiệu suất.</p>
-    <div class="tip-box"><span class="tip-label">⚠️ Thống kê đáng báo động</span><p>Khảo sát 2.400 sinh viên CNTT Việt Nam (2024): 58% báo cáo triệu chứng burnout mức độ trung bình-nặng. 73% cảm thấy học ngày càng mất ý nghĩa. 41% đã nghĩ đến việc bỏ ngành ít nhất 1 lần.</p></div>
-    <h3>🔍 3 chiều của Burnout (Maslach Burnout Inventory)</h3>
-    <ul><li><strong>Exhaustion (Kiệt sức):</strong> Không phải chỉ mệt — mà là cạn kiệt năng lượng cả thể xác lẫn tinh thần, ngủ đủ giấc vẫn mệt</li><li><strong>Cynicism (Hoài nghi):</strong> Mất hứng thú, coi việc học là gánh nặng vô nghĩa, tách biệt cảm xúc</li><li><strong>Inefficacy (Mất hiệu năng):</strong> Cảm giác không tiến bộ dù cố gắng, mất tự tin</li></ul>
-    <h3>💊 Phục hồi dựa trên bằng chứng (Evidence-Based Recovery)</h3>
-    <ul><li><strong>Recovery experiences (Sonnentag):</strong> Detachment tâm lý khỏi học tập, relaxation, mastery experiences, control over free time</li><li><strong>Sleep priority:</strong> 7-9 tiếng không thể thương lượng — thiếu ngủ nhân đôi nguy cơ burnout</li><li><strong>Social connection:</strong> Bạn bè, gia đình — đây là buffer mạnh nhất chống burnout</li><li><strong>Movement breaks:</strong> 20 phút vận động/ngày — dopamine và serotonin tự nhiên</li></ul>`
-  },
-  {
-    id: 14, cat: 'code', emoji: '📱', color: 'linear-gradient(135deg,#0a0f15,#0d1525)',
-    title: 'React Native vs Flutter 2025: Chọn framework nào để học mobile dev?',
-    date: '10/11/2025', readTime: '7 phút',
-    tags: ['Mobile Dev', 'React Native', 'Flutter'],
-    excerpt: 'Stack Overflow Developer Survey 2024: Flutter vượt React Native về mức độ yêu thích (69% vs 55%). Nhưng React Native vẫn dẫn đầu về số lượng việc làm. Phân tích chuyên sâu cho sinh viên.',
-    content: `<p>Câu hỏi "React Native hay Flutter?" đã chia rẽ cộng đồng mobile dev suốt 5 năm. Stack Overflow Developer Survey 2024 cung cấp dữ liệu thực tế nhất để trả lời.</p>
-    <div class="tip-box"><span class="tip-label">📊 Stack Overflow Survey 2024</span><p>Flutter: 69% developer yêu thích, tăng từ 46% năm 2021. React Native: 55% yêu thích. Về việc làm (Indeed.com): React Native Jobs ~45k, Flutter Jobs ~38k (tại Mỹ). Tại Việt Nam: React Native vẫn nhiều hơn ~2.3x theo TopDev.</p></div>
-    <h3>🆚 So sánh kỹ thuật</h3>
-    <p><strong>Flutter (Google):</strong> Dart language, custom rendering engine (Skia/Impeller), không bridge → hiệu năng cao, UI nhất quán. <strong>React Native (Meta):</strong> JavaScript/TypeScript, bridge sang native components → UI theo native platform, học nhanh hơn nếu biết React.</p>
-    <h3>🎓 Khuyến nghị cho sinh viên CNTT Việt Nam 2025</h3>
-    <ul><li><strong>Học web trước (HTML/CSS/JS):</strong> React Native phù hợp hơn nếu đã biết React</li><li><strong>Chỉ làm mobile:</strong> Flutter + Dart có learning curve thấp hơn, UI đẹp hơn mặc định</li><li><strong>Muốn xin việc nhanh:</strong> React Native có nhiều cơ hội hơn tại VN hiện tại</li><li><strong>Long-term:</strong> Flutter có momentum mạnh hơn, hỗ trợ đa nền tảng tốt hơn (Web, Desktop, Mobile)</li></ul>`
-  },
-  {
-    id: 15, cat: 'edu', emoji: '🌐', color: 'linear-gradient(135deg,#0a1015,#0f1a25)',
-    title: 'STEM vs STEAM: Tại sao thêm "A" (Arts) vào lại quan trọng?',
-    date: '05/11/2025', readTime: '5 phút',
-    tags: ['STEM', 'STEAM', 'Giáo dục'],
-    excerpt: 'Nghiên cứu MIT Media Lab: Tư duy nghệ thuật và thiết kế giúp kỹ sư giải quyết vấn đề sáng tạo hơn 34%. Apple, Google tuyển dụng nhân viên STEAM — không chỉ STEM. Ý nghĩa với giáo viên Tin học.',
-    content: `<p><strong>STEAM = Science + Technology + Engineering + Arts + Mathematics.</strong> Việc thêm "A" (Arts) không phải là "làm dễ đi" hay "thêm môn nghệ thuật vào" — mà là nhấn mạnh tư duy thiết kế, sáng tạo và nhân văn vào quá trình giải quyết vấn đề kỹ thuật.</p>
-    <div class="tip-box"><span class="tip-label">🎨 Tại sao Steve Jobs luôn nhấn mạnh Arts?</span><p>"Chỉ có công nghệ thôi là chưa đủ — công nghệ kết hợp với nghệ thuật và nhân văn mới tạo ra kết quả khiến trái tim ta rung động." — Steve Jobs, iPad 2 Launch, 2011.</p></div>
-    <h3>📊 Bằng chứng từ nghiên cứu</h3>
-    <p>MIT Media Lab (2023) phân tích 1.200 nhà phát minh nổi tiếng: Những người có training về Arts hoặc Music có khả năng <span class="stat-highlight">34% cao hơn</span> trong việc đăng ký patent so với STEM-only counterparts. IBM CEO Survey (2024): "Creativity" xếp hạng #1 trong "skills of the future" — cao hơn cả "technical skills".</p>
-    <h3>💻 Tích hợp STEAM vào dạy Tin học</h3>
-    <ul><li><strong>UI/UX Design:</strong> Dạy code đi kèm với design thinking và user research</li><li><strong>Data visualization là nghệ thuật:</strong> Matplotlib, D3.js — chọn màu sắc, layout, storytelling</li><li><strong>Generative Art với code:</strong> Processing, p5.js — code tạo ra nghệ thuật</li><li><strong>Music + AI:</strong> Tạo nhạc với Python (MusicPy, Magenta)</li></ul>`
-  },
-  {
-    id: 16, cat: 'tech', emoji: '🔮', color: 'linear-gradient(135deg,#0f0a1a,#1a0f2a)',
-    title: 'Large Language Models (LLM) hoạt động như thế nào? Giải thích không cần toán học',
-    date: '01/11/2025', readTime: '8 phút',
-    tags: ['LLM', 'AI', 'Giải thích kỹ thuật'],
-    excerpt: 'ChatGPT, Claude, Gemini đều dựa trên kiến trúc Transformer (2017). Tại sao chúng biết "nhiều thứ" nhưng lại hallucinate? Cơ chế hoạt động được giải thích bằng ngôn ngữ thông thường.',
-    content: `<p>Từ khi ChatGPT ra mắt tháng 11/2022 (đạt 100 triệu user trong 2 tháng — nhanh nhất lịch sử), câu hỏi "AI hoạt động thế nào?" trở thành điều sinh viên Tin học cần biết trả lời được.</p>
-    <div class="tip-box"><span class="tip-label">🔑 Kiến trúc Transformer (Vaswani et al., 2017)</span><p>Paper "Attention Is All You Need" (Google Brain, 2017) đã thay đổi NLP mãi mãi. Ý tưởng cốt lõi: thay vì xử lý text tuần tự, Transformer "chú ý" đến tất cả các từ cùng lúc — Self-Attention Mechanism.</p></div>
-    <h3>🧠 LLM học từ dữ liệu như thế nào?</h3>
-    <p>LLM được huấn luyện bằng cách <strong>dự đoán từ tiếp theo</strong> trong hàng nghìn tỷ câu văn bản. Đơn giản như: "Trời hôm nay _____?" → "đẹp". Sau khi xem đủ nhiều văn bản, model học được patterns ngôn ngữ, thực tế, logic — nhưng không "hiểu" theo nghĩa con người.</p>
-    <h3>❓ Tại sao LLM Hallucinate?</h3>
-    <p>Model không có "sự thật" — nó chỉ có xác suất từ tiếp theo nào hợp lý nhất. Khi không biết đáp án, thay vì nói "Tôi không biết", nó generate câu nghe có vẻ đúng nhưng sai thực tế. Đây là hệ quả tất yếu của kiến trúc generative.</p>
-    <h3>🏗️ Scale và Emergent Abilities</h3>
-    <p>Điều thú vị: nhiều khả năng của LLM xuất hiện đột ngột (emergent) khi model đủ lớn. GPT-2 (1.5B params) không làm được arithmetic. GPT-3 (175B params) có thể giải nhiều bài toán cơ bản. GPT-4 (~1T params ước tính) vượt qua bar exam, medical licensing exam. Đây là hiện tượng chưa được giải thích hoàn toàn.</p>`
-  },
-  {
-    id: 17, cat: 'code', emoji: '🐙', color: 'linear-gradient(135deg,#0a0f10,#0f1a1a)',
-    title: 'Git & GitHub Workflow chuyên nghiệp: Từ sinh viên đến Junior Developer',
-    date: '25/10/2025', readTime: '6 phút',
-    tags: ['Git', 'GitHub'],
-    excerpt: 'Stack Overflow Survey 2024: 96.6% developer dùng Git. Nhưng chỉ 34% sinh viên mới ra trường biết Git workflow đúng chuẩn. Hướng dẫn từ cơ bản đến conventional commits và CI/CD.',
-    content: `<p>Git không chỉ là "undo button" — đây là hệ thống cộng tác và lịch sử code quan trọng nhất trong lịch sử phần mềm. <strong>96.6% developer</strong> (Stack Overflow 2024) dùng Git hàng ngày.</p>
-    <div class="tip-box"><span class="tip-label">🚨 Common mistakes của sinh viên mới</span><p>Commit message vô nghĩa ("fix", "update", "done"). Commit thẳng vào main branch. Không dùng .gitignore → push cả node_modules. Force push lên shared branches. Không làm git pull trước khi push.</p></div>
-    <h3>📝 Conventional Commits — Chuẩn công nghiệp</h3>
-    <p>Format: <code>type(scope): description</code>. Types: <code>feat</code> (feature mới), <code>fix</code> (sửa bug), <code>docs</code>, <code>style</code>, <code>refactor</code>, <code>test</code>, <code>chore</code>. Ví dụ: <code>feat(auth): add JWT refresh token endpoint</code>. Công cụ như <strong>Commitizen</strong> giúp enforce convention tự động.</p>
-    <h3>🌿 Branching Strategy: Git Flow</h3>
-    <p>Workflow chuẩn: <code>main</code> (production), <code>develop</code> (integration), <code>feature/xxx</code> (tính năng mới), <code>hotfix/xxx</code> (vá nóng). Pull Request + Code Review trước khi merge — đây là quy trình tại mọi công ty công nghệ.</p>
-    <h3>💼 GitHub Profile = CV sống động nhất</h3>
-    <p>Contribution graph xanh lá cây + README.md profile đẹp + 3-5 dự án có sao = ấn tượng tốt ngay lập tức với nhà tuyển dụng. Theo khảo sát TopDev Vietnam 2024, 78% tech recruiter xem GitHub trước khi phỏng vấn.</p>`
-  },
-  {
-    id: 18, cat: 'life', emoji: '💰', color: 'linear-gradient(135deg,#0f150a,#1e2a14)',
-    title: 'Quản lý tài chính cá nhân cho sinh viên IT: Framework 50-30-20 được tối ưu',
-    date: '20/10/2025', readTime: '4 phút',
-    tags: ['Tài chính', 'Kỹ năng sống'],
-    excerpt: 'Quy tắc 50-30-20 của Elizabeth Warren là framework quản lý tài chính phổ biến nhất thế giới. Nhưng với sinh viên IT tại Việt Nam, có những điều chỉnh quan trọng cần biết.',
-    content: `<p>Quy tắc <strong>50-30-20</strong> được phổ biến bởi giáo sư Luật Elizabeth Warren trong cuốn "All Your Worth" (2005) và hiện là framework quản lý tài chính cá nhân phổ biến nhất toàn cầu.</p>
-    <div class="tip-box"><span class="tip-label">💡 Framework 50-30-20 cho sinh viên VN</span><p><strong>50%</strong> chi phí thiết yếu: tiền trọ, ăn, đi lại, học phí. <strong>30%</strong> phát triển bản thân + giải trí có chọn lọc (sách kỹ thuật, khóa học online, hội thảo). <strong>20%</strong> tiết kiệm khẩn cấp fund + đầu tư dài hạn.</p></div>
-    <h3>📱 Ứng dụng quản lý tài chính miễn phí tốt nhất 2024</h3>
-    <ul><li><strong>Money Lover (Việt Nam):</strong> Giao diện tiếng Việt, phân loại thông minh, đồng bộ ngân hàng</li><li><strong>Wallet by BudgetBakers:</strong> Open banking, track tự động</li><li><strong>Notion + template:</strong> Flexible, tự tùy chỉnh hoàn toàn</li></ul>
-    <h3>💎 Mẹo đặc thù cho sinh viên IT</h3>
-    <ul><li>Học trực tuyến thay vì sách: Coursera, edX, Udemy (sale 90% thường xuyên)</li><li>GitHub Student Pack: $200k+ tool miễn phí — PHẢI đăng ký ngay</li><li>Freelance nhỏ: Fiverr, Upwork, Toptal cho từng dự án web/app nhỏ</li><li>Chip in subscription: Chia nhóm 4-5 người cho Netflix, Spotify, Adobe = 30k-50k/người/tháng</li></ul>
-    <h3>📈 Quy tắc Pay Yourself First</h3>
-    <p>Khi nhận tiền trợ cấp, chuyển ngay 20% vào tài khoản tiết kiệm TRƯỚC khi làm bất cứ điều gì khác. Không nhìn thấy tiền = không tiêu tiền. Warren Buffett: "Đừng tiết kiệm số tiền còn lại sau khi tiêu — hãy tiêu số tiền còn lại sau khi tiết kiệm."</p>`
-  },
-  {
-    id: 19, cat: 'tech', emoji: '⚛️', color: 'linear-gradient(135deg,#0a0a1a,#1a1030)',
-    title: 'Quantum Computing 101: Tại sao máy tính lượng tử không chạy Windows?',
-    date: '15/10/2025', readTime: '6 phút',
-    tags: ['Quantum Computing', 'Công nghệ tương lai'],
-    excerpt: 'Google tuyên bố "quantum supremacy" năm 2019 khi máy tính lượng tử giải bài toán 10,000 năm trong 200 giây. Nhưng tại sao nó không thể thay thế laptop của bạn? Giải thích dễ hiểu.',
-    content: `<p>Tháng 10/2019, Google công bố bộ xử lý lượng tử <strong>Sycamore</strong> đã thực hiện một phép tính trong <span class="stat-highlight">200 giây</span> mà siêu máy tính Summit cần 10,000 năm. Đây là "quantum supremacy" — cột mốc lịch sử của điện toán lượng tử.</p>
-    <div class="tip-box"><span class="tip-label">⚛️ Qubit vs Bit — Sự khác biệt cốt lõi</span><p>Bit thông thường: 0 hoặc 1. Qubit: Có thể ở trạng thái 0, 1, hoặc SUPERPOSITION (cả 0 và 1 đồng thời) cho đến khi được đo. 50 qubit = 2^50 (~1 quadrillion) trạng thái đồng thời. Đây là nguồn sức mạnh của quantum computing.</p></div>
-    <h3>🔮 Quantum Computing giỏi gì?</h3>
-    <ul><li><strong>Tối ưu hóa:</strong> Logistics, financial portfolio, drug discovery</li><li><strong>Mô phỏng phân tử:</strong> Thiết kế thuốc, vật liệu mới</li><li><strong>Phá mã hóa:</strong> Shor's algorithm phá RSA encryption (lý thuyết)</li><li><strong>Machine Learning:</strong> Quantum ML có thể tăng tốc một số loại training</li></ul>
-    <h3>❌ Tại sao không thay thế laptop?</h3>
-    <p>Qubit cực kỳ nhạy cảm — cần làm lạnh đến -273°C (gần tuyệt đối zero, lạnh hơn không gian vũ trụ). Error rate cao (~1% mỗi operation). Không thể chạy Word, Chrome, hay game. Quantum computers là công cụ chuyên biệt, không phải general-purpose computer.</p>`
-  },
-  {
-    id: 20, cat: 'edu', emoji: '📋', color: 'linear-gradient(135deg,#0a1510,#152a20)',
-    title: 'Chương trình GDPT 2018 Tin học: Phân tích chi tiết 5 mạch năng lực',
-    date: '10/10/2025', readTime: '7 phút',
-    tags: ['GDPT 2018', 'Sư phạm'],
-    excerpt: 'Chương trình GDPT 2018 định nghĩa 5 mạch năng lực tin học cụ thể — khác hoàn toàn so với chương trình 2006. Giáo viên cần hiểu sâu để thiết kế bài học đúng chuẩn năng lực.',
-    content: `<p>Chương trình GDPT 2018 đánh dấu bước chuyển từ <strong>tiếp cận nội dung</strong> sang <strong>tiếp cận năng lực</strong> — cuộc cách mạng lớn nhất trong giáo dục Việt Nam 30 năm. Với sinh viên Sư Phạm Tin Học, đây là nền tảng nghề nghiệp cần nắm vững.</p>
-    <div class="tip-box"><span class="tip-label">📌 Điểm đột phá quan trọng nhất</span><p>Tin học trở thành môn BẮT BUỘC từ lớp 3 (từ 2022). Lập trình đưa vào tiểu học qua Scratch. Tư duy máy tính (Computational Thinking) trở thành mục tiêu cốt lõi. Nhu cầu giáo viên Tin học tăng mạnh — cơ hội lớn cho thế hệ sinh viên đang học.</p></div>
-    <h3>🎯 Phân tích 5 Mạch Năng lực (NL) chi tiết</h3>
-    <ul>
-      <li><strong>NL1 – Sử dụng và quản lý phương tiện số:</strong> Thành thạo thiết bị, phần mềm, dịch vụ số. Tự học công nghệ mới. KHÔNG chỉ dạy Word/Excel.</li>
-      <li><strong>NL2 – Đạo đức, pháp luật và văn hóa trong môi trường số:</strong> An toàn thông tin, bản quyền, hành vi mạng xã hội. Cực kỳ thời sự trong bối cảnh 2024.</li>
-      <li><strong>NL3 – Giải quyết vấn đề với sự hỗ trợ của CNTT:</strong> Computational thinking, thuật toán, lập trình. Đây là trái tim của chương trình mới.</li>
-      <li><strong>NL4 – Ứng dụng CNTT trong học và tự học:</strong> Dùng công cụ số để nghiên cứu, ghi chép, cộng tác. AI tools nằm trong mạch này.</li>
-      <li><strong>NL5 – Hợp tác và giao tiếp môi trường số:</strong> Làm việc nhóm online, trình bày số, netiquette.</li>
-    </ul>
-    <h3>⚡ Thách thức đặt ra cho giáo viên Tin học mới</h3>
-    <p>Phải cập nhật liên tục: AI vào lớp học, Web 3.0, IoT đều có thể vào đề thi. Đánh giá theo năng lực thực tế, không chỉ nhớ khái niệm. Project-based learning và STEM integration là xu hướng bắt buộc.</p>`
-  },
-  {
-    id: 21, cat: 'code', emoji: '🗃️', color: 'linear-gradient(135deg,#0a0f15,#101520)',
-    title: 'SQL cho người mới bắt đầu: Từ SELECT đến JOIN phức tạp trong 1 bài học',
-    date: '05/10/2025', readTime: '8 phút',
-    tags: ['SQL', 'Database', 'Lập trình'],
-    excerpt: 'SQL ra đời năm 1974 và vẫn là ngôn ngữ truy vấn cơ sở dữ liệu số 1 thế giới sau 50 năm. Stack Overflow 2024: SQL là ngôn ngữ được dùng nhiều thứ 3, chỉ sau JavaScript và Python.',
-    content: `<p>SQL (Structured Query Language) được IBM phát triển năm 1974, chuẩn hóa thành ANSI SQL năm 1986 và đến nay vẫn là ngôn ngữ làm việc với cơ sở dữ liệu quan hệ phổ biến nhất thế giới.</p>
-    <div class="tip-box"><span class="tip-label">📊 Vị thế SQL năm 2024</span><p>Stack Overflow Survey 2024: 51.5% developer dùng SQL thường xuyên — đứng thứ 3 sau JavaScript (62.3%) và Python (51%). Mọi job description Data Analyst/Engineer đều yêu cầu SQL. Học SQL là ROI cao nhất với thời gian bỏ ra.</p></div>
-    <h3>🔍 4 nhóm lệnh SQL cơ bản</h3>
-    <ul>
-      <li><strong>DML (Data Manipulation):</strong> SELECT, INSERT, UPDATE, DELETE — làm việc với dữ liệu</li>
-      <li><strong>DDL (Data Definition):</strong> CREATE, ALTER, DROP — định nghĩa cấu trúc</li>
-      <li><strong>DCL (Data Control):</strong> GRANT, REVOKE — phân quyền</li>
-      <li><strong>TCL (Transaction Control):</strong> COMMIT, ROLLBACK — quản lý transaction</li>
-    </ul>
-    <h3>🔗 JOIN — Điểm mạnh của relational database</h3>
-    <p><code>INNER JOIN</code>: Chỉ lấy hàng có match ở cả 2 bảng. <code>LEFT JOIN</code>: Lấy tất cả hàng bảng trái + match bảng phải. <code>RIGHT JOIN</code>: Ngược lại. <code>FULL OUTER JOIN</code>: Tất cả từ cả 2 bảng.</p>
-    <h3>⚡ Tối ưu query — Kỹ năng cốt lõi của DBA</h3>
-    <ul><li>Dùng <code>INDEX</code> cho cột thường WHERE/JOIN — có thể tăng tốc 100x</li><li>Tránh <code>SELECT *</code> — chỉ lấy cột cần thiết</li><li>Dùng <code>EXPLAIN</code> để phân tích execution plan</li><li><code>WHERE</code> trước <code>HAVING</code> để filter sớm</li></ul>`
-  },
-  {
-    id: 22, cat: 'tech', emoji: '🛡️', color: 'linear-gradient(135deg,#0a0f0f,#0f1a1a)',
-    title: 'Cybersecurity 2025: Xu hướng tấn công mới và vai trò của AI trong phòng thủ',
-    date: '01/10/2025', readTime: '7 phút',
-    tags: ['Cybersecurity', 'AI Security'],
-    excerpt: 'Báo cáo CrowdStrike 2024: Tốc độ tấn công tăng 75% so với 2023. AI-powered attacks đang thay đổi bức tranh bảo mật hoàn toàn. Deepfake phishing tăng 3000%. Những gì sinh viên CNTT cần biết.',
-    content: `<p>Theo <strong>CrowdStrike Global Threat Report 2024</strong>, môi trường threat landscape đang thay đổi với tốc độ chưa từng có. Yếu tố chủ chốt: <strong>AI được dùng ở cả hai phía</strong> — tấn công và phòng thủ.</p>
-    <div class="tip-box"><span class="tip-label">⚠️ Số liệu đáng lo ngại</span><p>Thời gian từ lúc xâm nhập đến exfiltration giảm từ 84 phút (2022) xuống còn 62 phút (2024). Deepfake phishing tăng 3000% so với 2022. 79% vi phạm không dùng malware — identity-based attacks. Việt Nam lọt top 10 quốc gia bị tấn công nhiều nhất Đông Nam Á.</p></div>
-    <h3>🤖 AI-Powered Attacks — Mối đe dọa thế hệ mới</h3>
-    <ul><li><strong>AI-generated phishing:</strong> Không còn lỗi chính tả, được cá nhân hóa cao</li><li><strong>Deepfake CEO fraud:</strong> Video/audio giả CEO yêu cầu chuyển tiền khẩn cấp</li><li><strong>LLM-assisted malware:</strong> AI tự động generate code malware biến thể mới</li><li><strong>Automated vulnerability discovery:</strong> AI scan lỗ hổng nhanh hơn con người 1000x</li></ul>
-    <h3>🛡️ AI trong phòng thủ (Defensive AI)</h3>
-    <p><strong>SIEM + ML:</strong> Phát hiện anomaly pattern không thể tìm bằng tay. <strong>User and Entity Behavior Analytics (UEBA):</strong> Nhận biết hành vi bất thường của user. <strong>AI-powered threat hunting:</strong> Chủ động tìm kiếm mối đe dọa tiềm ẩn.</p>
-    <h3>🎓 Chứng chỉ nên học cho sinh viên CNTT VN</h3>
-    <ul><li>CompTIA Security+ — entry level, được công nhận rộng rãi</li><li>CEH (Certified Ethical Hacker) — phù hợp tư duy tấn công-phòng thủ</li><li>Google Cybersecurity Certificate — miễn phí/rẻ, có thực hành lab</li></ul>`
-  },
-  {
-    id: 23, cat: 'life', emoji: '🌱', color: 'linear-gradient(135deg,#0a1510,#15201a)',
-    title: 'Xây dựng thói quen học tập bền vững: Khoa học Habit Loop và ứng dụng thực tế',
-    date: '25/09/2025', readTime: '5 phút',
-    tags: ['Thói quen', 'Phát triển bản thân'],
-    excerpt: 'Charles Duhigg (The Power of Habit) và James Clear (Atomic Habits) đều dựa trên nghiên cứu neuroscience về habit loop. Cách áp dụng vào việc học lập trình và ôn thi hiệu quả.',
-    content: `<p><strong>Habit Loop</strong> — mô hình 3 bước của MIT được Duhigg phổ biến: <strong>Cue → Routine → Reward</strong>. James Clear bổ sung thêm <strong>Craving</strong> thành 4 bước: Cue → Craving → Response → Reward. Đây là nền tảng khoa học của mọi thói quen — tốt và xấu.</p>
-    <div class="tip-box"><span class="tip-label">🧠 Neuroscience của Habit</span><p>Khi một hành vi trở thành habit, não bộ chuyển xử lý từ prefrontal cortex (tư duy có chủ đích) sang basal ganglia (tự động). Điều này giải phóng cognitive resources cho việc khác — lý do tại sao habit là "gift" của não bộ.</p></div>
-    <h3>📐 Áp dụng Habit Loop vào học lập trình</h3>
-    <p>Ví dụ habit học Python hàng ngày: <strong>Cue:</strong> Mở laptop, thấy shortcut "Python Practice" trên màn hình. <strong>Craving:</strong> Muốn cảm giác hoàn thành 1 bài LeetCode. <strong>Response:</strong> Giải 1 bài Easy mỗi ngày (chỉ 1, không hơn). <strong>Reward:</strong> Đánh dấu X trên habit tracker — "don't break the chain" (Jerry Seinfeld method).</p>
-    <h3>⚙️ 4 quy luật xây dựng thói quen tốt (James Clear)</h3>
-    <ul><li><strong>Make it obvious:</strong> Đặt sách lập trình ngay chỗ ngủ dậy</li><li><strong>Make it attractive:</strong> Chỉ nghe nhạc yêu thích khi code</li><li><strong>Make it easy:</strong> Bắt đầu với 2 phút (2-minute rule)</li><li><strong>Make it satisfying:</strong> Habit tracker, streak counter, chia sẻ tiến độ</li></ul>`
-  },
-  {
-    id: 24, cat: 'edu', emoji: '🔬', color: 'linear-gradient(135deg,#0a0f1a,#101825)',
-    title: 'Tư duy Máy tính (Computational Thinking): Kỹ năng thế kỷ 21 trong GDPT 2018',
-    date: '20/09/2025', readTime: '6 phút',
-    tags: ['Computational Thinking', 'Kỹ năng thế kỷ 21'],
-    excerpt: 'Jeannette Wing (Microsoft Research, 2006) định nghĩa Computational Thinking là "kỹ năng nền tảng cho mọi người — không kém đọc, viết, tính". Cách dạy 4 thành phần CT cho học sinh THPT.',
-    content: `<p>Bài báo của Jeannette Wing trên <em>Communications of the ACM</em> (2006) đã làm thay đổi tư duy về giáo dục CNTT toàn cầu. <strong>Computational Thinking (CT)</strong> không phải là biết dùng máy tính — mà là cách giải quyết vấn đề theo tư duy của lập trình viên, dù bạn có code hay không.</p>
-    <div class="tip-box"><span class="tip-label">🎯 CT trong GDPT 2018 Việt Nam</span><p>CT là một trong những năng lực cốt lõi của mạch NL3 (Giải quyết vấn đề với CNTT). Đưa vào từ lớp 3, tăng dần đến lớp 12. Không yêu cầu code ngay — có thể dạy CT qua puzzle, trò chơi logic, và unplugged activities.</p></div>
-    <h3>🧩 4 thành phần của Computational Thinking</h3>
-    <ul>
-      <li><strong>Decomposition (Phân rã):</strong> Chia vấn đề lớn thành các vấn đề nhỏ có thể giải được. Ví dụ: Làm website = HTML + CSS + JavaScript + Database + Server...</li>
-      <li><strong>Pattern Recognition (Nhận dạng mẫu):</strong> Tìm điểm chung, xu hướng trong dữ liệu. Cơ sở của Machine Learning.</li>
-      <li><strong>Abstraction (Trừu tượng hóa):</strong> Bỏ qua chi tiết không cần thiết, tập trung vào bản chất. Hàm (function) trong lập trình là ví dụ điển hình.</li>
-      <li><strong>Algorithm Design (Thiết kế thuật toán):</strong> Chuỗi bước có thứ tự để giải quyết vấn đề — từ công thức toán đến code.</li>
-    </ul>
-    <h3>🎮 Dạy CT không cần máy tính (Unplugged Activities)</h3>
-    <ul><li>CS Unplugged (csunplugged.org): Bài tập binary numbers, sorting networks bằng thẻ giấy</li><li>Bee-Bot và Blue-Bot: Robot lập trình vật lý cho tiểu học</li><li>Grid games: Dạy thuật toán pathfinding trên bảng kẻ ô</li></ul>`
-  }
-];
+      const data = new FormData(form);
+      submitBtn.innerText = '⏳ Đang gửi...';
+      submitBtn.disabled = true;
 
-const catColors = { tech: '#00d4ff', code: '#a78bfa', edu: '#34d399', life: '#fbbf24' };
-let currentFilter = 'all';
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: data,
+          headers: { 'Accept': 'application/json' }
+        });
 
-function renderPosts() {
-  const grid = document.getElementById('postsGrid');
-  const filtered = currentFilter === 'all' ? posts : posts.filter(p => p.cat === currentFilter);
-  grid.innerHTML = filtered.map(p => `
-    <div class="post-card fade-up" onclick="openModal(${p.id})">
-      <div class="post-thumb" style="background:${p.color}">
-        <div class="post-thumb-grid"></div>
-        <div class="post-thumb-emoji">${p.emoji}</div>
-        <div class="post-cat-badge">${getCatLabel(p.cat)}</div>
-        <div class="post-read-time">⏱ ${p.readTime}</div>
-      </div>
-      <div class="post-body">
-        <div class="post-meta"><i class="fa fa-calendar" style="color:${catColors[p.cat]}"></i>${p.date}</div>
-        <div class="post-title">${p.title}</div>
-        <div class="post-excerpt">${p.excerpt}</div>
-        <div class="post-footer">
-          <span class="post-read"><i class="fa fa-book-open"></i> Đọc thêm <i class="fa fa-arrow-right"></i></span>
-          <div class="post-tags">${(p.tags||[]).slice(0,2).map(t=>`<span class="post-tag">${t}</span>`).join('')}</div>
-        </div>
-      </div>
-    </div>
-  `).join('');
-  document.querySelectorAll('#postsGrid .fade-up').forEach(el => observer.observe(el));
-}
+        if (response.ok) {
+          spawnFlyingLetter(submitBtn);
+          formCard.style.display = 'none';
+          thankYouMsg.style.display = 'block';
 
-function getCatLabel(cat) { return { tech: '⚡ Công nghệ', code: '💻 Lập trình', edu: '🎓 Giáo dục', life: '🌱 Cuộc sống' }[cat]; }
+          confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+          spawnHearts();
+        } else {
+          showError('Có lỗi xảy ra, vui lòng kiểm tra lại ID Formspree!');
+        }
+      } catch (error) {
+        showError('Không thể kết nối internet, thử lại nhé!');
+      } finally {
+        submitBtn.innerText = '🚀 Gửi Lời Nhắn Âm Thầm';
+        submitBtn.disabled = false;
+      }
+    });
 
-function filterPosts(cat, btn) {
-  currentFilter = cat;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderPosts();
-}
-
-function filterFromFooter(cat) {
-  const btn = document.querySelector(`.filter-btn[onclick="filterPosts('${cat}', this)"]`);
-  setTimeout(() => { if(btn) filterPosts(cat, btn); }, 300);
-}
-
-function openModal(id) {
-  const p = posts.find(x => x.id === id); if(!p) return;
-  document.getElementById('modalEmoji').textContent = p.emoji;
-  document.getElementById('modalHeaderImg').style.background = p.color;
-  document.getElementById('modalCat').textContent = getCatLabel(p.cat);
-  document.getElementById('modalTitle').textContent = p.title;
-  document.getElementById('modalMeta').innerHTML = `
-    <span><i class="fa fa-calendar"></i> ${p.date}</span>
-    <span><i class="fa fa-clock"></i> ${p.readTime} đọc</span>
-    <span><i class="fa fa-tag" style="color:${catColors[p.cat]}"></i> ${(p.tags||[]).join(', ')}</span>`;
-  document.getElementById('modalContent').innerHTML = p.content;
-  document.getElementById('modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal(e) { if(e.target===document.getElementById('modal')) closeModalDirect(); }
-function closeModalDirect() { document.getElementById('modal').classList.remove('open'); document.body.style.overflow=''; }
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeModalDirect(); });
-
-function handleSubmit() {
-  const name = document.getElementById('f-name').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const msg = document.getElementById('f-msg').value.trim();
-  if(!name || !email || !msg) { showToast('⚠️ Vui lòng điền đầy đủ thông tin!', true); return; }
-  showToast(`✅ Cảm ơn ${name}! Mình sẽ phản hồi trong 24h 😊`);
-  ['f-name','f-email','f-topic','f-msg'].forEach(id => document.getElementById(id).value='');
-}
-
-function handleNewsletter() {
-  const email = document.getElementById('nlEmail').value.trim();
-  if(!email || !email.includes('@')) { showToast('⚠️ Vui lòng nhập email hợp lệ!', true); return; }
-  showToast('🎉 Đăng ký thành công! Cảm ơn bạn đã theo dõi.');
-  document.getElementById('nlEmail').value = '';
-}
-
-function showToast(msg, isError=false) {
-  const toast = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  toast.style.borderColor = isError ? '#ef4444' : 'var(--accent4)';
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 4000);
-}
-
-// Init
-renderPosts();
-</script>
+    function resetForm() {
+      form.reset();
+      charCount.textContent = '0 / 500';
+      charCount.classList.remove('warn');
+      hideError();
+      thankYouMsg.style.display = 'none';
+      formCard.style.display = 'block';
+    }
+  </script>
 </body>
 </html>
